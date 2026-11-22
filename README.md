@@ -41,4 +41,4 @@ python3 -m http.server 8199
 python3 appaday-199-query-clinic/test/e2e_query_clinic.py
 ```
 
-`node tools/vendor.js --check` in the 194 workspace verifies the vendored modules match `core/`, and `npm test` there passes 116 of 116.
+The same test also lives in `test/` of the 194 workspace beside the other daily e2e files. `node tools/vendor.js --check` in the 194 workspace verifies the vendored modules match `core/`, and `npm test` there passes 116 of 116.
