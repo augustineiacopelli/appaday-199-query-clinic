@@ -1,0 +1,2971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="apple-touch-icon" href="https://augustineiacopelli.github.io/appaday/icons/199.png">
+<meta name="apple-mobile-web-app-title" content="Query Clinic">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="manifest" href="https://augustineiacopelli.github.io/appaday/manifests/199.webmanifest">
+<script src="https://augustineiacopelli.github.io/appaday/save.js" defer></script>
+<title>Query Clinic | AppADay 199</title>
+<meta name="description" content="Query Clinic is a hands on SQL course in your browser. Forty graded exercises on a built in college database take you from SELECT to window functions. Every answer is checked by its results, not its wording, each mistake gets a specific reason, and notes show where SQL Server differs.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Query Clinic | AppADay 199">
+<meta property="og:description" content="Forty graded SQL exercises on a built in college database, checked by their results, with a specific reason for every mistake.">
+<meta property="og:url" content="https://augustineiacopelli.github.io/appaday-199-query-clinic/">
+<meta property="og:image" content="https://augustineiacopelli.github.io/appaday/icons/512/199.png">
+<meta name="theme-color" content="#0b1214">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="../appaday/vendor/sql.js-1.16.0/sql-wasm.js"></script>
+<style>
+:root {
+  --bg: #0b1214;
+  --surface: #111b1e;
+  --surface-2: #172427;
+  --surface-3: #1f2f33;
+  --line: #2a3e43;
+  --text: #e6f0f1;
+  --muted: #a3b7ba;
+  --faint: #7f9599;
+  --accent: #1F7A8C;
+  --accent-hi: #5cc2d4;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(31, 122, 140, 0.18);
+  --good: #4cc38a;
+  --good-soft: rgba(76, 195, 138, 0.13);
+  --warn: #e3b341;
+  --warn-soft: rgba(227, 179, 65, 0.13);
+  --bad: #f07167;
+  --bad-soft: rgba(240, 113, 103, 0.13);
+  --radius: 14px;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; min-height: 100dvh; display: flex; flex-direction: column;
+  background: radial-gradient(1200px 600px at 85% -10%, rgba(31, 122, 140, 0.16), transparent 60%), var(--bg);
+  color: var(--text); font-family: var(--sans); font-size: 1rem; line-height: 1.45;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: var(--accent-hi); }
+:focus-visible { outline: 2px solid var(--accent-hi); outline-offset: 2px; }
+.hidden { display: none !important; }
+
+/* page header and footer */
+.bar {
+  position: sticky; top: 0; z-index: 20; background: rgba(11, 18, 20, 0.92);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line);
+}
+.bar-in { max-width: 980px; margin: 0 auto; padding: 0.6rem 1rem; display: flex; align-items: center; gap: 0.75rem; }
+.brand { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; color: var(--text); margin-right: auto; min-width: 0; }
+.brand-mark { width: 34px; height: 34px; border-radius: 9px; background: var(--accent); display: grid; place-items: center; color: var(--accent-ink); flex: none; }
+.brand-mark svg { width: 20px; height: 20px; }
+.brand-name { font-weight: 700; letter-spacing: -0.01em; font-size: 1.05rem; line-height: 1.1; }
+.brand-sub { display: block; font-size: 0.72rem; color: var(--muted); font-weight: 500; }
+.bar-slot { display: flex; align-items: center; gap: 0.5rem; }
+main { flex: 1; width: 100%; max-width: 980px; margin: 0 auto; padding: 1rem 1rem 2rem; min-width: 0; }
+footer { text-align: center; color: var(--faint); font-size: 0.8rem; padding: 1.2rem 1rem calc(1.2rem + var(--safe-b)); }
+footer a { color: var(--muted); }
+.fatal { max-width: 560px; margin: 3rem auto; text-align: center; color: var(--muted); }
+.fatal h1 { color: var(--text); font-size: 1.4rem; }
+@media (max-width: 420px) {
+  .bar-in { padding: 0.5rem 0.75rem; gap: 0.5rem; }
+  .brand-mark { width: 30px; height: 30px; }
+  main { padding: 0.75rem 0.75rem 2rem; }
+}
+
+/* ---------------------------------------------------------- Query Clinic component */
+.qc { display: flex; flex-direction: column; gap: 0.9rem; min-width: 0; }
+.qc .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.qc .btn {
+  min-height: 44px; padding: 0 1rem; border-radius: 11px; border: 1px solid var(--line);
+  background: var(--surface-2); display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  font-weight: 500; font-size: 0.95rem; white-space: nowrap;
+}
+.qc .btn:hover { background: var(--surface-3); }
+.qc .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.qc .btn.primary:hover { background: #24899d; border-color: #24899d; }
+.qc .btn.ghost { background: transparent; }
+.qc .btn.danger { color: var(--bad); }
+.qc .btn.small { padding: 0 0.8rem; font-size: 0.875rem; }
+.qc .btn[disabled] { opacity: 0.45; cursor: default; }
+.qc .icon-btn { width: 44px; padding: 0; }
+.qc .icon-btn svg { width: 20px; height: 20px; }
+
+.qc-top { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.qc-meter { flex: 1 1 200px; min-width: 0; display: flex; flex-direction: column; gap: 0.3rem; }
+.qc-meter .row { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.85rem; color: var(--muted); }
+.qc-meter .row b { color: var(--text); font-weight: 600; }
+.track { height: 8px; border-radius: 999px; background: var(--surface-3); overflow: hidden; }
+.track > span { display: block; height: 100%; background: var(--accent-hi); border-radius: 999px; transition: width 0.25s; }
+.save-state { font-size: 0.8rem; color: var(--muted); display: flex; align-items: center; gap: 0.4rem; white-space: nowrap; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--faint); flex: none; }
+.save-state.saved .dot { background: var(--good); }
+.save-state.dirty .dot { background: var(--warn); }
+.save-state.off .dot { background: var(--bad); }
+
+.banner { border-radius: 12px; padding: 0.8rem 0.9rem; border: 1px solid rgba(227, 179, 65, 0.45); background: var(--warn-soft); display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.92rem; }
+.banner strong { display: block; }
+.banner p { margin: 0; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.9rem; display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
+.qc h1 { font-size: clamp(1.45rem, 5.5vw, 2rem); letter-spacing: -0.02em; margin: 0; line-height: 1.15; }
+.qc h2 { font-size: 1.05rem; margin: 0; letter-spacing: -0.005em; }
+.lede { color: var(--muted); margin: 0; }
+.muted { color: var(--muted); font-size: 0.88rem; margin: 0; }
+.label-sm { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; margin: 0; }
+
+/* unit list */
+.units { display: flex; flex-direction: column; gap: 0.6rem; }
+.unit { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.unit.open { border-color: rgba(92, 194, 212, 0.45); }
+.unit-h { width: 100%; min-height: 64px; border: 0; background: transparent; text-align: left; padding: 0.7rem 0.9rem; display: flex; align-items: center; gap: 0.8rem; }
+.unit-h:hover { background: var(--surface-2); }
+.unit-n { width: 38px; height: 38px; border-radius: 10px; background: var(--accent-soft); color: var(--accent-hi); display: grid; place-items: center; font-weight: 700; flex: none; font-variant-numeric: tabular-nums; }
+.unit.done .unit-n { background: var(--good-soft); color: var(--good); }
+.unit-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.3rem; }
+.unit-t b { font-weight: 600; }
+.unit-t span { font-size: 0.82rem; color: var(--muted); }
+.unit-c { font-size: 0.82rem; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.unit-c b { color: var(--text); }
+.exlist { display: flex; flex-direction: column; gap: 0.35rem; padding: 0 0.6rem 0.7rem; }
+.exitem { min-height: 48px; border: 0; border-radius: 10px; background: var(--surface-2); text-align: left; padding: 0.45rem 0.7rem; display: flex; align-items: center; gap: 0.6rem; }
+.exitem:hover { background: var(--surface-3); }
+.exitem .id { font-family: var(--mono); font-size: 0.8rem; color: var(--faint); width: 2.6rem; flex: none; }
+.exitem .t { flex: 1; min-width: 0; }
+.st { font-size: 0.74rem; border-radius: 999px; padding: 0.12rem 0.55rem; border: 1px solid var(--line); color: var(--faint); white-space: nowrap; }
+.st.solved { border-color: rgba(76, 195, 138, 0.5); color: var(--good); background: var(--good-soft); }
+.st.tried { border-color: rgba(227, 179, 65, 0.45); color: var(--warn); background: var(--warn-soft); }
+.list-foot { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+/* exercise */
+.crumbs { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.crumbs .where { font-size: 0.85rem; color: var(--muted); flex: 1 1 160px; min-width: 0; }
+.ex-h { display: flex; flex-direction: column; gap: 0.4rem; }
+.ex-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.tag { font-size: 0.74rem; border-radius: 999px; padding: 0.12rem 0.6rem; background: var(--surface-3); color: var(--muted); }
+.prompt { font-size: 1.05rem; margin: 0; }
+.note { border-left: 3px solid var(--accent-hi); background: var(--accent-soft); border-radius: 0 10px 10px 0; padding: 0.6rem 0.8rem; font-size: 0.9rem; }
+.note b { display: block; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-hi); margin-bottom: 0.15rem; }
+.note.hint { border-left-color: var(--warn); background: var(--warn-soft); }
+.note.hint b { color: var(--warn); }
+.editor {
+  width: 100%; min-height: 8rem; resize: vertical; display: block; border-radius: 12px; border: 1px solid var(--line);
+  background: #071012; color: var(--text); padding: 0.8rem 0.9rem; font-family: var(--mono);
+  font-size: clamp(16px, 0.6rem + 0.45vw, 17px); line-height: 1.5; tab-size: 2; -moz-tab-size: 2; white-space: pre; overflow: auto;
+}
+.editor:focus { outline: none; border-color: var(--accent-hi); }
+.run-row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.run-row .grow { flex: 1 1 auto; }
+.run-note { font-size: 0.8rem; color: var(--faint); margin: 0; }
+.verdict { border-radius: 12px; padding: 0.8rem 0.9rem; display: flex; flex-direction: column; gap: 0.55rem; font-size: 0.95rem; }
+.verdict strong { display: block; font-size: 1rem; }
+.verdict p { margin: 0; }
+.verdict.pass { border: 1px solid rgba(76, 195, 138, 0.5); background: var(--good-soft); }
+.verdict.fail { border: 1px solid rgba(240, 113, 103, 0.45); background: var(--bad-soft); }
+.verdict.guard { border: 1px solid rgba(227, 179, 65, 0.45); background: var(--warn-soft); }
+.verdict.info { border: 1px solid var(--line); background: var(--surface-2); }
+.verdict .acts { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.answer { font-family: var(--mono); font-size: 0.85rem; background: #071012; border: 1px solid var(--line); border-radius: 10px; padding: 0.7rem 0.8rem; white-space: pre-wrap; word-break: break-word; margin: 0; }
+.ex-nav { display: flex; justify-content: space-between; gap: 0.5rem; }
+
+/* result grid */
+.result { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; min-width: 0; }
+.result-head { padding: 0.55rem 0.9rem; border-bottom: 1px solid var(--line); font-size: 0.85rem; color: var(--muted); }
+.result-head b { color: var(--text); font-weight: 600; }
+.result-scroll { overflow: auto; max-height: min(55dvh, 480px); -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+table.grid { border-collapse: separate; border-spacing: 0; font-family: var(--mono); font-size: 0.8rem; min-width: 100%; }
+.grid th, .grid td { padding: 0.45rem 0.7rem; border-bottom: 1px solid var(--line); white-space: nowrap; max-width: 300px; overflow: hidden; text-overflow: ellipsis; text-align: left; }
+.grid th { position: sticky; top: 0; background: var(--surface-3); color: var(--text); font-weight: 500; z-index: 1; }
+.grid td.num { text-align: right; }
+.grid td.null { color: var(--faint); font-style: italic; }
+.grid td.rn, .grid th.rn { color: var(--faint); text-align: right; width: 1%; }
+
+/* finish */
+.finish { text-align: center; padding: 1.5rem 0.5rem 0.5rem; display: flex; flex-direction: column; gap: 0.8rem; align-items: center; }
+.finish-art { width: 84px; height: 84px; border-radius: 22px; background: var(--good-soft); color: var(--good); display: grid; place-items: center; }
+.finish-art svg { width: 44px; height: 44px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.6rem; width: 100%; }
+.stat { background: var(--surface-2); border-radius: 12px; padding: 0.7rem; text-align: center; }
+.stat .v { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat .l { font-size: 0.8rem; color: var(--muted); }
+table.totals { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.totals th, .totals td { padding: 0.5rem 0.4rem; border-bottom: 1px solid var(--line); text-align: left; }
+.totals td.n, .totals th.n { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* sheets */
+.scrim { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55); z-index: 40; display: flex; align-items: flex-end; justify-content: center; }
+.sheet {
+  width: 100%; max-width: 600px; max-height: 88dvh; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 18px 18px 0 0; display: flex; flex-direction: column; padding-bottom: var(--safe-b);
+}
+@media (min-width: 760px) { .scrim { align-items: center; } .sheet { border-radius: 18px; } }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0.6rem 0.4rem 1.1rem; border-bottom: 1px solid var(--line); }
+.sheet-head h2 { margin: 0; font-size: 1.1rem; }
+.sheet-body { overflow-y: auto; padding: 0.9rem 1.1rem 1.2rem; display: flex; flex-direction: column; gap: 1rem; }
+.sheet-body h3 { margin: 0 0 0.4rem; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; }
+.sheet-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.sheet-row .btn { flex: 1 1 150px; }
+.switch { display: flex; align-items: center; gap: 0.6rem; min-height: 44px; cursor: pointer; font-size: 0.95rem; }
+.switch input { appearance: none; -webkit-appearance: none; width: 46px; height: 28px; border-radius: 999px; background: var(--surface-3); border: 1px solid var(--line); position: relative; flex: none; margin: 0; }
+.switch input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--muted); transition: transform 0.15s; }
+.switch input:checked { background: var(--accent); border-color: var(--accent); }
+.switch input:checked::after { transform: translateX(18px); background: #ffffff; }
+.tables { display: flex; flex-direction: column; gap: 0.45rem; }
+details.tbl { border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); min-width: 0; }
+details.tbl > summary { min-height: 48px; display: flex; align-items: center; gap: 0.5rem; padding: 0 0.9rem; cursor: pointer; font-weight: 600; font-size: 0.95rem; }
+details.tbl > summary span { font-weight: 400; font-size: 0.8rem; color: var(--muted); margin-left: auto; }
+.cols { display: flex; flex-wrap: wrap; gap: 0.35rem; padding: 0 0.9rem 0.6rem; }
+.col { font-family: var(--mono); font-size: 0.75rem; border-radius: 8px; padding: 0.2rem 0.5rem; background: var(--surface-3); }
+.col i { font-style: normal; color: var(--faint); margin-left: 0.3rem; }
+.col.key { box-shadow: inset 0 0 0 1px rgba(92, 194, 212, 0.55); }
+details.tbl .result-scroll { border-top: 1px solid var(--line); max-height: 240px; }
+.check-list { margin: 0; padding-left: 1.1rem; font-size: 0.88rem; color: var(--muted); }
+.qc-toast {
+  position: fixed; left: 50%; bottom: calc(1rem + var(--safe-b)); transform: translateX(-50%); z-index: 60;
+  background: var(--surface-3); border: 1px solid var(--line); border-radius: 12px; padding: 0.7rem 1rem;
+  font-size: 0.9rem; max-width: calc(100vw - 2rem); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-in">
+    <a class="brand" href="https://augustineiacopelli.github.io/appaday/" title="Back to the AppADay portfolio">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></span>
+      <span><span class="brand-name">Query Clinic</span><span class="brand-sub">AppADay 199</span></span>
+    </a>
+    <a class="brand-sub" href="https://augustineiacopelli.github.io/appaday/">AppADay portfolio</a>
+  </div>
+</header>
+
+<main>
+  <div id="clinic"></div>
+  <div id="fatal" class="fatal hidden"></div>
+</main>
+
+<footer>
+  Query Clinic is day 199 of <a href="https://augustineiacopelli.github.io/appaday/">AppADay</a>. Prairie Ridge College is fictional, and your progress stays on this device.
+</footer>
+
+<script>
+/* QD:CORE BEGIN v1.2.0 */
+/*
+ * Query Desk shared core. One classic script, no dependencies of its own.
+ * It expects the sql.js loader (initSqlJs) to be present, or passed to QD.boot.
+ * Vendored unchanged into AppADay 194 to 200. Do not edit a vendored copy:
+ * edit core/qd-core.js, run the tests, then re-vendor.
+ *
+ * Nothing in this file runs at load time except the definition of globalThis.QD.
+ * ASCII only. No Claude model ID appears here: models come from window.AppModels.
+ */
+(function (root) {
+  'use strict';
+
+  var QD = {};
+  QD.VERSION = '1.2.0';
+  QD.FORMAT_VERSION = 1;
+  QD.SQLJS_VERSION = '1.16.0';
+  QD.SQLJS_CDN = 'https://cdn.jsdelivr.net/npm/sql.js@' + QD.SQLJS_VERSION + '/dist/';
+  QD.PREFIX = '_qd_';
+
+  /* Limits in bytes of CSV text or database file, set on Day 194. CSV Intake warns at warn and refuses at max. */
+  QD.LIMITS = {
+    phone: { warn: 10 * 1048576, max: 15 * 1048576 },
+    desktop: { warn: 40 * 1048576, max: 80 * 1048576 },
+    resultRows: 5000,
+    cellChars: 2000
+  };
+
+  var SQL = null;
+
+  /* ------------------------------------------------------------------ boot */
+
+  /**
+   * Load the SQLite engine once. In the browser, call QD.boot() after the sql.js script tag.
+   * In Node tests, call QD.boot(require('sql.js')).
+   */
+  QD.boot = function (initFn, opts) {
+    if (SQL) return Promise.resolve(SQL);
+    var init = initFn || root.initSqlJs;
+    if (typeof init !== 'function') {
+      return Promise.reject(new Error('QD.boot: the sql.js loader is missing'));
+    }
+    var cfg = opts || {};
+    if (!cfg.locateFile && typeof root.document !== 'undefined') {
+      cfg.locateFile = function (f) { return QD.SQLJS_CDN + f; };
+    }
+    return init(cfg).then(function (S) { SQL = S; return S; });
+  };
+
+  QD.ready = function () { return !!SQL; };
+
+  function needEngine() {
+    if (!SQL) throw new Error('QD: call QD.boot() before using a project');
+  }
+
+  /* ----------------------------------------------------------- identifiers */
+
+  QD.quoteIdent = function (name) {
+    return '"' + String(name).replace(/"/g, '""') + '"';
+  };
+
+  QD.quoteText = function (s) {
+    return "'" + String(s).replace(/'/g, "''") + "'";
+  };
+
+  var RESERVED = {};
+  ('abort action add after all alter always analyze and as asc attach autoincrement before begin between by ' +
+   'cascade case cast check collate column commit conflict constraint create cross current current_date ' +
+   'current_time current_timestamp database default deferrable deferred delete desc detach distinct do drop ' +
+   'each else end escape except exclude exclusive exists explain fail filter first following for foreign from ' +
+   'full generated glob group groups having if ignore immediate in index indexed initially inner insert instead ' +
+   'intersect into is isnull join key last left like limit match materialized natural no not nothing notnull ' +
+   'null nulls of offset on or order others outer over partition plan pragma preceding primary query raise ' +
+   'range recursive references regexp reindex release rename replace restrict returning right rollback row ' +
+   'rows savepoint select set table temp temporary then ties to transaction trigger unbounded union unique ' +
+   'update using vacuum values view virtual when where window with without').split(' ').forEach(function (w) {
+    RESERVED[w] = true;
+  });
+
+  /**
+   * Turn any header or file name into a safe snake_case SQL name.
+   * Never returns an empty string, a reserved word, a name starting with a digit,
+   * or a name starting with the reserved _qd_ or sqlite_ prefixes.
+   */
+  QD.cleanName = function (raw, fallback) {
+    var s = String(raw == null ? '' : raw);
+    s = s.replace(/\.[A-Za-z0-9]{1,5}$/, function (ext) {
+      return /^\.(csv|tsv|txt|tab|dat)$/i.test(ext) ? '' : ext;
+    });
+    s = s.replace(/([a-z0-9])([A-Z])/g, '$1_$2');
+    s = s.replace(/%/g, ' pct ').replace(/#/g, ' num ').replace(/&/g, ' and ').replace(/\$/g, ' usd ');
+    s = s.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    if (!s) s = fallback || 'col';
+    if (/^[0-9]/.test(s)) s = 'n_' + s;
+    if (RESERVED[s]) s = s + '_';
+    if (s.indexOf('qd_') === 0 || s.indexOf('sqlite_') === 0) s = 'x_' + s;
+    if (s.length > 60) s = s.slice(0, 60).replace(/_+$/, '');
+    return s;
+  };
+
+  /** Make every name in the list unique by appending _2, _3 and so on. Input order is kept. */
+  QD.uniqueNames = function (names, taken) {
+    var seen = {};
+    (taken || []).forEach(function (t) { seen[String(t).toLowerCase()] = true; });
+    return names.map(function (n) {
+      var base = n, k = 1, out = n;
+      while (seen[out.toLowerCase()]) { k += 1; out = base + '_' + k; }
+      seen[out.toLowerCase()] = true;
+      return out;
+    });
+  };
+
+  /* -------------------------------------------------------------------- CSV */
+
+  /** Pick the delimiter that splits the first lines most consistently. */
+  QD.sniffDelimiter = function (text) {
+    var sample = text.slice(0, 20000);
+    var cands = [',', '\t', ';', '|'];
+    var best = ',', bestScore = -1;
+    cands.forEach(function (d) {
+      var rows = QD.parseCSV(sample, { delimiter: d, maxRows: 25 }).rows;
+      if (rows.length < 1) return;
+      var counts = rows.map(function (r) { return r.length; });
+      var first = counts[0];
+      if (first < 2) return;
+      var same = counts.filter(function (c) { return c === first; }).length;
+      var score = (same / counts.length) * 1000 + first;
+      if (score > bestScore) { bestScore = score; best = d; }
+    });
+    return best;
+  };
+
+  /**
+   * RFC 4180 style parser. Handles quoted fields, doubled quotes, embedded newlines,
+   * CRLF, LF and bare CR line ends, and a leading byte order mark.
+   * Returns { rows: string[][], delimiter, truncated }. Fully blank lines are skipped.
+   */
+  QD.parseCSV = function (text, opts) {
+    var o = opts || {};
+    var s = String(text);
+    if (s.charCodeAt(0) === 0xFEFF) s = s.slice(1);
+    var d = o.delimiter || QD.sniffDelimiter(s);
+    var maxRows = o.maxRows || Infinity;
+    var rows = [], row = [], field = '', inQ = false, i = 0, n = s.length, c, sawQuote = false;
+    var truncated = false;
+    function endField() { row.push(field); field = ''; sawQuote = false; }
+    function endRow() {
+      endField();
+      if (!(row.length === 1 && row[0] === '')) rows.push(row);
+      row = [];
+    }
+    while (i < n) {
+      c = s[i];
+      if (inQ) {
+        if (c === '"') {
+          if (s[i + 1] === '"') { field += '"'; i += 2; continue; }
+          inQ = false; i += 1; continue;
+        }
+        field += c; i += 1; continue;
+      }
+      if (c === '"' && field === '' && !sawQuote) { inQ = true; sawQuote = true; i += 1; continue; }
+      if (c === d) { endField(); i += 1; continue; }
+      if (c === '\r') {
+        endRow();
+        i += (s[i + 1] === '\n') ? 2 : 1;
+        if (rows.length >= maxRows) { truncated = i < n; break; }
+        continue;
+      }
+      if (c === '\n') {
+        endRow(); i += 1;
+        if (rows.length >= maxRows) { truncated = i < n; break; }
+        continue;
+      }
+      field += c; i += 1;
+    }
+    if (!truncated && (field !== '' || row.length > 0 || sawQuote)) endRow();
+    return { rows: rows, delimiter: d, truncated: truncated };
+  };
+
+  /* --------------------------------------------------------- type inference */
+
+  var NULL_TOKENS = { '': 1, 'na': 1, 'n/a': 1, 'null': 1, 'none': 1, 'nan': 1, '-': 1, '--': 1, '#n/a': 1, '?': 1 };
+  QD.isNullToken = function (v) {
+    if (v == null) return true;
+    return NULL_TOKENS[String(v).trim().toLowerCase()] === 1;
+  };
+
+  var RE_INT = /^[+-]?\d+$/;
+  var RE_REAL = /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/;
+  var RE_MONEY = /^\(?[+-]?\s*[$]?\s*[+-]?(\d{1,3}(,\d{3})+|\d+)(\.\d+)?\s*%?\)?$/;
+  var RE_ISO_DATE = /^(\d{4})-(\d{1,2})-(\d{1,2})$/;
+  var RE_ISO_DT = /^(\d{4})-(\d{1,2})-(\d{1,2})[T ](\d{1,2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?\s*(Z|[+-]\d{2}:?\d{2})?$/;
+  var RE_SLASH = /^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2}|\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([AaPp][Mm])?)?$/;
+  var BOOL_TRUE = { 'true': 1, 't': 1, 'yes': 1, 'y': 1 };
+  var BOOL_FALSE = { 'false': 1, 'f': 1, 'no': 1, 'n': 1 };
+
+  function pad2(x) { return (x < 10 ? '0' : '') + x; }
+  function validYMD(y, m, d) {
+    if (m < 1 || m > 12 || d < 1 || d > 31 || y < 1000 || y > 9999) return false;
+    var dim = [31, ((y % 4 === 0 && y % 100 !== 0) || y % 400 === 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    return d <= dim[m - 1];
+  }
+
+  /** Integers that are safe to store as INTEGER: no leading zeros (those are codes), and inside the JS safe range. */
+  function isCleanInt(v) {
+    if (!RE_INT.test(v)) return false;
+    var digits = v.replace(/^[+-]/, '');
+    if (digits.length > 1 && digits[0] === '0') return false;
+    if (digits.length > 15) return false;
+    return true;
+  }
+  function isCleanReal(v) {
+    if (!RE_REAL.test(v)) return false;
+    if (RE_INT.test(v)) return false; /* an integer that failed isCleanInt is a code or too long for a number */
+    var digits = v.replace(/^[+-]/, '');
+    if (/^0\d/.test(digits)) return false;
+    return isFinite(Number(v));
+  }
+  function parseMoney(v) {
+    if (!RE_MONEY.test(v)) return null;
+    if (RE_INT.test(v) && !isCleanInt(v)) return null;
+    var neg = /^\(.*\)$/.test(v) || /-/.test(v);
+    var num = Number(v.replace(/[()$,%\s+-]/g, ''));
+    if (!isFinite(num)) return null;
+    return neg ? -num : num;
+  }
+  /** Returns the ISO form, or null. order is 'mdy' or 'dmy' for slash dates. */
+  function parseDateLike(v, order) {
+    var m = RE_ISO_DATE.exec(v);
+    if (m) {
+      return validYMD(+m[1], +m[2], +m[3]) ? { iso: m[1] + '-' + pad2(+m[2]) + '-' + pad2(+m[3]), time: false } : null;
+    }
+    m = RE_ISO_DT.exec(v);
+    if (m) {
+      if (!validYMD(+m[1], +m[2], +m[3]) || +m[4] > 23 || +m[5] > 59) return null;
+      return {
+        iso: m[1] + '-' + pad2(+m[2]) + '-' + pad2(+m[3]) + ' ' + pad2(+m[4]) + ':' + m[5] + ':' + (m[6] || '00'),
+        time: true
+      };
+    }
+    m = RE_SLASH.exec(v);
+    if (m) {
+      var a = +m[1], b = +m[2], y = +m[3];
+      if (m[3].length === 2) y += (y < 70 ? 2000 : 1900);
+      var mo = order === 'dmy' ? b : a, da = order === 'dmy' ? a : b;
+      if (!validYMD(y, mo, da)) return null;
+      var iso = y + '-' + pad2(mo) + '-' + pad2(da);
+      if (m[4] === undefined) return { iso: iso, time: false };
+      var hh = +m[4], mi = +m[5];
+      if (m[7]) {
+        var pm = /p/i.test(m[7]);
+        if (hh < 1 || hh > 12) return null;
+        hh = (hh % 12) + (pm ? 12 : 0);
+      }
+      if (hh > 23 || mi > 59) return null;
+      return { iso: iso + ' ' + pad2(hh) + ':' + m[5] + ':' + (m[6] || '00'), time: true };
+    }
+    return null;
+  }
+
+  /**
+   * Infer one column from its raw string values.
+   * Types: integer, real, boolean, date, datetime, text.
+   * Strict by default: a type is chosen only when every non-null value fits.
+   * The result also reports the best near miss so the interface can offer a coercion.
+   *
+   * Returns { type, nulls, count, dateOrder, money, nearMiss: {type, fit, misfits: [..5]} | null, note }
+   */
+  QD.inferColumn = function (values, opts) {
+    var o = opts || {};
+    var tolerance = o.tolerance || 0;
+    var n = 0, nulls = 0;
+    var fit = { integer: 0, real: 0, money: 0, boolean: 0, mdy: 0, dmy: 0, isoish: 0, time: 0, zeroLead: 0 };
+    var miss = { integer: [], real: [], boolean: [], date: [] };
+    var bool01 = true, i, v, t;
+    for (i = 0; i < values.length; i += 1) {
+      v = values[i];
+      if (QD.isNullToken(v)) { nulls += 1; continue; }
+      v = String(v).trim();
+      n += 1;
+      if (isCleanInt(v)) { fit.integer += 1; fit.real += 1; if (v !== '0' && v !== '1') bool01 = false; }
+      else {
+        bool01 = false;
+        if (miss.integer.length < 5) miss.integer.push(v);
+        if (isCleanReal(v)) fit.real += 1;
+        else if (miss.real.length < 5) miss.real.push(v);
+      }
+      if (RE_INT.test(v) && /^[+-]?0\d/.test(v)) fit.zeroLead += 1;
+      if (parseMoney(v) !== null) fit.money += 1;
+      t = v.toLowerCase();
+      if (BOOL_TRUE[t] || BOOL_FALSE[t]) fit.boolean += 1;
+      else if (miss.boolean.length < 5) miss.boolean.push(v);
+      var dm = parseDateLike(v, 'mdy'), dd = parseDateLike(v, 'dmy');
+      if (dm) fit.mdy += 1;
+      if (dd) fit.dmy += 1;
+      if (!dm && !dd && miss.date.length < 5) miss.date.push(v);
+      if ((dm && dm.time) || (dd && dd.time)) fit.time += 1;
+    }
+    var res = { type: 'text', nulls: nulls, count: n, dateOrder: null, money: false, nearMiss: null, note: '' };
+    if (n === 0) { res.note = 'Every value is empty.'; return res; }
+    var need = Math.ceil(n * (1 - tolerance));
+    function near(type, got, misfits) {
+      if (got < n && got / n >= 0.9 && (!res.nearMiss || got / n > res.nearMiss.fit)) {
+        res.nearMiss = { type: type, fit: got / n, misfits: misfits };
+      }
+    }
+    if (fit.boolean >= need && fit.boolean === n) { res.type = 'boolean'; return res; }
+    if (fit.integer >= need) {
+      res.type = 'integer';
+      if (bool01 && n >= 2) res.note = 'Only 0 and 1 appear. This may be a yes or no flag.';
+      return res;
+    }
+    if (fit.zeroLead > 0 && fit.zeroLead + fit.integer === n) {
+      res.note = 'Digits with leading zeros are kept as text so codes such as ZIP codes stay intact.';
+      return res;
+    }
+    if (fit.real >= need) { res.type = 'real'; return res; }
+    var dateFit = Math.max(fit.mdy, fit.dmy);
+    if (dateFit >= need) {
+      res.dateOrder = (fit.dmy > fit.mdy) ? 'dmy' : 'mdy';
+      if (fit.mdy === fit.dmy && o.dateOrder) res.dateOrder = o.dateOrder;
+      res.type = fit.time > 0 ? 'datetime' : 'date';
+      if (fit.mdy === n && fit.dmy === n && fit.time < n) {
+        var sample = null;
+        for (i = 0; i < values.length && !sample; i += 1) {
+          if (!QD.isNullToken(values[i]) && RE_SLASH.test(String(values[i]).trim())) sample = String(values[i]).trim();
+        }
+        if (sample) res.note = 'Day and month are ambiguous in values such as ' + sample + '. Read as month first.';
+      }
+      return res;
+    }
+    if (fit.money >= need && fit.money === n) {
+      res.type = 'real'; res.money = true;
+      res.note = 'Currency symbols, commas, percent signs and accounting parentheses are stripped.';
+      return res;
+    }
+    near('integer', fit.integer, miss.integer);
+    near('real', fit.real, miss.real);
+    near('date', dateFit, miss.date);
+    near('boolean', fit.boolean, miss.boolean);
+    if (res.nearMiss) {
+      res.note = Math.round(res.nearMiss.fit * 1000) / 10 + ' percent of values look like ' + res.nearMiss.type +
+        '. Kept as text because of values such as ' + res.nearMiss.misfits.slice(0, 3).join(', ') + '.';
+    }
+    return res;
+  };
+
+  /**
+   * Convert one raw string to the value stored in SQLite for the given inferred column.
+   * Values that do not fit the type become null and are counted by the caller.
+   * Returns { v, bad }.
+   */
+  QD.convertValue = function (raw, info) {
+    if (QD.isNullToken(raw)) return { v: null, bad: false };
+    var v = String(raw).trim(), t;
+    switch (info.type) {
+      case 'integer':
+        return isCleanInt(v) ? { v: Number(v), bad: false } : { v: null, bad: true };
+      case 'real':
+        if (info.money) { t = parseMoney(v); return t === null ? { v: null, bad: true } : { v: t, bad: false }; }
+        return isCleanReal(v) ? { v: Number(v), bad: false } : { v: null, bad: true };
+      case 'boolean':
+        t = v.toLowerCase();
+        if (BOOL_TRUE[t]) return { v: 1, bad: false };
+        if (BOOL_FALSE[t]) return { v: 0, bad: false };
+        return { v: null, bad: true };
+      case 'date':
+      case 'datetime':
+        t = parseDateLike(v, info.dateOrder || 'mdy');
+        if (!t) return { v: null, bad: true };
+        return { v: (info.type === 'date') ? t.iso.slice(0, 10) : (t.time ? t.iso : t.iso + ' 00:00:00'), bad: false };
+      default:
+        return { v: String(raw), bad: false };
+    }
+  };
+
+  var AFFINITY = { integer: 'INTEGER', real: 'REAL', boolean: 'INTEGER', date: 'TEXT', datetime: 'TEXT', text: 'TEXT' };
+  QD.affinity = function (type) { return AFFINITY[type] || 'TEXT'; };
+
+  /* ---------------------------------------------------------------- schema */
+
+  var DDL = [
+    'CREATE TABLE IF NOT EXISTS _qd_meta (key TEXT PRIMARY KEY, value TEXT)',
+    'CREATE TABLE IF NOT EXISTS _qd_sources (id INTEGER PRIMARY KEY, table_name TEXT NOT NULL, file_name TEXT, ' +
+      'row_count INTEGER, col_count INTEGER, bad_rows INTEGER DEFAULT 0, bad_cells INTEGER DEFAULT 0, ' +
+      'loaded_at TEXT, options_json TEXT)',
+    'CREATE TABLE IF NOT EXISTS _qd_columns (table_name TEXT NOT NULL, column_name TEXT NOT NULL, ordinal INTEGER, ' +
+      'original_header TEXT, inferred_type TEXT, null_count INTEGER, bad_count INTEGER DEFAULT 0, note TEXT, ' +
+      'PRIMARY KEY (table_name, column_name))',
+    'CREATE TABLE IF NOT EXISTS _qd_keys (id INTEGER PRIMARY KEY, table_name TEXT NOT NULL, columns_json TEXT NOT NULL, ' +
+      "status TEXT NOT NULL DEFAULT 'proposed', score REAL, evidence_json TEXT, updated_at TEXT)",
+    'CREATE TABLE IF NOT EXISTS _qd_relations (id INTEGER PRIMARY KEY, from_table TEXT NOT NULL, from_columns_json TEXT NOT NULL, ' +
+      "to_table TEXT NOT NULL, to_columns_json TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'proposed', score REAL, " +
+      'cardinality TEXT, evidence_json TEXT, updated_at TEXT)',
+    'CREATE TABLE IF NOT EXISTS _qd_queries (id INTEGER PRIMARY KEY, name TEXT NOT NULL, sql TEXT NOT NULL, note TEXT, ' +
+      "origin TEXT NOT NULL DEFAULT 'manual', question TEXT, pinned INTEGER DEFAULT 0, created_at TEXT, updated_at TEXT)",
+    'CREATE TABLE IF NOT EXISTS _qd_history (id INTEGER PRIMARY KEY, sql TEXT NOT NULL, ran_at TEXT, ms REAL, ' +
+      'row_count INTEGER, ok INTEGER, error TEXT)',
+    'CREATE TABLE IF NOT EXISTS _qd_charts (id INTEGER PRIMARY KEY, query_id INTEGER, name TEXT, spec_json TEXT NOT NULL, ' +
+      'position INTEGER DEFAULT 0, created_at TEXT)',
+    'CREATE TABLE IF NOT EXISTS _qd_notebook (id INTEGER PRIMARY KEY, position INTEGER NOT NULL, kind TEXT NOT NULL, ' +
+      'ref_id INTEGER, body TEXT, created_at TEXT)',
+    'CREATE TABLE IF NOT EXISTS _qd_clinic (exercise_id TEXT PRIMARY KEY, status TEXT, attempts INTEGER DEFAULT 0, ' +
+      'last_sql TEXT, solved_at TEXT)'
+  ];
+  QD.RESERVED_TABLES = ['_qd_meta', '_qd_sources', '_qd_columns', '_qd_keys', '_qd_relations', '_qd_queries',
+    '_qd_history', '_qd_charts', '_qd_notebook', '_qd_clinic'];
+  QD.HISTORY_KEEP = 200;
+
+  QD.now = function () { return new Date().toISOString(); };
+
+  /* ---------------------------------------------------------- SQL scanning */
+
+  /**
+   * Blank out comments and the contents of string literals and quoted identifiers, keeping length.
+   * Used to look at SQL keywords without being fooled by text inside quotes.
+   */
+  QD.maskSql = function (sql) {
+    var s = String(sql), out = '', i = 0, n = s.length, c, q;
+    while (i < n) {
+      c = s[i];
+      if (c === '-' && s[i + 1] === '-') {
+        while (i < n && s[i] !== '\n') { out += ' '; i += 1; }
+        continue;
+      }
+      if (c === '/' && s[i + 1] === '*') {
+        out += '  '; i += 2;
+        while (i < n && !(s[i] === '*' && s[i + 1] === '/')) { out += (s[i] === '\n' ? '\n' : ' '); i += 1; }
+        if (i < n) { out += '  '; i += 2; }
+        continue;
+      }
+      if (c === "'" || c === '"' || c === '`' || c === '[') {
+        q = (c === '[') ? ']' : c;
+        out += c; i += 1;
+        while (i < n) {
+          if (s[i] === q) {
+            if (q !== ']' && s[i + 1] === q) { out += '  '; i += 2; continue; }
+            break;
+          }
+          out += (s[i] === '\n' ? '\n' : ' '); i += 1;
+        }
+        if (i < n) { out += q; i += 1; }
+        continue;
+      }
+      out += c; i += 1;
+    }
+    return out;
+  };
+
+  /** Split a script into statements on semicolons that are outside quotes and comments. Empty statements are dropped. */
+  QD.splitStatements = function (sql) {
+    var s = String(sql), m = QD.maskSql(s), out = [], start = 0, i, piece;
+    var upper = m.toUpperCase();
+    for (i = 0; i < m.length; i += 1) {
+      /* Trigger bodies contain semicolons: track BEGIN ... END only inside CREATE TRIGGER. */
+      if (m[i] === ';') {
+        piece = upper.slice(start, i);
+        if (/^\s*CREATE\s+(TEMP\s+|TEMPORARY\s+)?TRIGGER\b/.test(piece) && !/\bEND\s*$/.test(piece)) continue;
+        if (m.slice(start, i).trim()) out.push(s.slice(start, i).trim());
+        start = i + 1;
+      }
+    }
+    if (m.slice(start).trim()) out.push(s.slice(start).trim());
+    return out;
+  };
+
+  var WRITE_WORDS = /\b(INSERT|UPDATE|DELETE|REPLACE|CREATE|DROP|ALTER|ATTACH|DETACH|VACUUM|REINDEX|PRAGMA|BEGIN|COMMIT|ROLLBACK|SAVEPOINT|RELEASE|ANALYZE)\b/;
+
+  /**
+   * Text level check that a piece of SQL is a single read only statement.
+   * Returns { ok, reason, statement }. This is the first of two guards. The second is the
+   * engine switch PRAGMA query_only, applied by project.query().
+   * It errs on the safe side: a column literally named update must be quoted to pass.
+   */
+  QD.checkReadOnly = function (sql) {
+    var parts = QD.splitStatements(sql);
+    if (parts.length === 0) return { ok: false, reason: 'There is no SQL to run.', statement: '' };
+    if (parts.length > 1) return { ok: false, reason: 'Only one statement can run at a time here.', statement: parts[0] };
+    var masked = QD.maskSql(parts[0]).toUpperCase();
+    var first = (/^\s*\(*\s*([A-Z]+)/.exec(masked) || [])[1] || '';
+    if (first !== 'SELECT' && first !== 'WITH' && first !== 'VALUES' && first !== 'EXPLAIN') {
+      return { ok: false, reason: 'Only SELECT statements can run here. This one starts with ' + (first || 'something else') + '.', statement: parts[0] };
+    }
+    var hit = WRITE_WORDS.exec(masked);
+    if (hit) {
+      return { ok: false, reason: 'This statement contains ' + hit[1] + ', which changes data or settings.', statement: parts[0] };
+    }
+    return { ok: true, reason: '', statement: parts[0] };
+  };
+
+  /* --------------------------------------------------------------- project */
+
+  function Project(db, name) {
+    this.db = db;
+    this.name = name || 'Untitled';
+    this._listeners = [];
+    this._dirty = false;
+    this.closed = false;
+  }
+
+  /** Create an empty project. */
+  QD.create = function (name) {
+    needEngine();
+    var p = new Project(new SQL.Database(), name);
+    p._ensureSchema(true);
+    return p;
+  };
+
+  /**
+   * Open a project from the bytes of a .sqlite file. A plain SQLite file with no _qd_ tables
+   * is adopted: the reserved tables are added and its user tables are left exactly as they are.
+   * Throws a plain language error when the bytes are not a SQLite database.
+   */
+  QD.open = function (bytes, name) {
+    needEngine();
+    var u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+    var magic = 'SQLite format 3';
+    var ok = u8.length >= 16, i;
+    for (i = 0; ok && i < magic.length; i += 1) { if (u8[i] !== magic.charCodeAt(i)) ok = false; }
+    if (!ok) throw new Error('That file is not a SQLite database.');
+    var db = new SQL.Database(u8);
+    try {
+      db.exec('SELECT count(*) FROM sqlite_master');
+    } catch (e) {
+      db.close();
+      throw new Error('That file looks damaged and could not be opened.');
+    }
+    var p = new Project(db, name);
+    var had = p.scalar("SELECT count(*) FROM sqlite_master WHERE name = '_qd_meta'") > 0;
+    var ver = had ? Number(p.getMeta('format_version') || 1) : 0;
+    if (ver > QD.FORMAT_VERSION) {
+      db.close();
+      throw new Error('This project was saved by a newer version of Query Desk (format ' + ver + ').');
+    }
+    p._ensureSchema(!had);
+    if (!name) p.name = p.getMeta('project_name') || 'Untitled';
+    return p;
+  };
+
+  Project.prototype._ensureSchema = function (fresh) {
+    var db = this.db;
+    DDL.forEach(function (d) { db.run(d); });
+    if (fresh) {
+      this.setMeta('format_version', String(QD.FORMAT_VERSION));
+      this.setMeta('created_at', QD.now());
+      this.setMeta('core_version', QD.VERSION);
+      this.setMeta('project_name', this.name);
+    }
+    /* Future migrations go here, keyed on format_version, each one additive. */
+    this._dirty = false;
+  };
+
+  Project.prototype.getMeta = function (key) {
+    var r = this.rows('SELECT value FROM _qd_meta WHERE key = ?', [key]);
+    return r.length ? r[0][0] : null;
+  };
+  Project.prototype.setMeta = function (key, value) {
+    this.db.run('INSERT INTO _qd_meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value',
+      [key, value == null ? null : String(value)]);
+    this._touch('meta');
+  };
+  Project.prototype.rename = function (name) {
+    this.name = name; this.setMeta('project_name', name);
+  };
+
+  /** Subscribe to changes. fn(kind) is called after any write made through this object. Returns an unsubscribe function. */
+  Project.prototype.onChange = function (fn) {
+    var L = this._listeners; L.push(fn);
+    return function () { var i = L.indexOf(fn); if (i >= 0) L.splice(i, 1); };
+  };
+  Project.prototype._touch = function (kind) {
+    this._dirty = true;
+    var L = this._listeners.slice(), i;
+    for (i = 0; i < L.length; i += 1) { try { L[i](kind || 'data'); } catch (e) { /* a listener must not break a write */ } }
+  };
+  Project.prototype.isDirty = function () { return this._dirty; };
+
+  /** The bytes of the project as a standard .sqlite file. */
+  Project.prototype.export = function (appTag) {
+    this.db.run("INSERT INTO _qd_meta (key, value) VALUES ('updated_at', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value", [QD.now()]);
+    if (appTag) {
+      this.db.run("INSERT INTO _qd_meta (key, value) VALUES ('last_app', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value", [String(appTag)]);
+    }
+    var bytes = this.db.export();
+    this._dirty = false;
+    return bytes;
+  };
+  Project.prototype.close = function () {
+    if (!this.closed) { this.db.close(); this.closed = true; this._listeners = []; }
+  };
+
+  /* low level reads */
+  Project.prototype.rows = function (sql, params) {
+    var st = this.db.prepare(sql), out = [];
+    try {
+      if (params) st.bind(params);
+      while (st.step()) out.push(st.get());
+    } finally { st.free(); }
+    return out;
+  };
+  Project.prototype.scalar = function (sql, params) {
+    var r = this.rows(sql, params);
+    return r.length ? r[0][0] : null;
+  };
+  Project.prototype.objects = function (sql, params) {
+    var st = this.db.prepare(sql), out = [];
+    try {
+      if (params) st.bind(params);
+      while (st.step()) out.push(st.getAsObject());
+    } finally { st.free(); }
+    return out;
+  };
+
+  /* ------------------------------------------------------------ user schema */
+
+  Project.prototype.userTables = function () {
+    return this.rows("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE '\\_qd\\_%' ESCAPE '\\' " +
+      "AND name NOT LIKE 'sqlite\\_%' ESCAPE '\\' ORDER BY name COLLATE NOCASE").map(function (r) { return r[0]; });
+  };
+  Project.prototype.userViews = function () {
+    return this.rows("SELECT name FROM sqlite_master WHERE type = 'view' ORDER BY name COLLATE NOCASE").map(function (r) { return r[0]; });
+  };
+  Project.prototype.hasTable = function (name) {
+    return this.scalar("SELECT count(*) FROM sqlite_master WHERE type IN ('table','view') AND lower(name) = lower(?)", [name]) > 0;
+  };
+
+  /**
+   * Full description of the user schema.
+   * [{ name, rowCount, columns: [{ name, type, notNull, pk, inferredType, originalHeader, note }], foreignKeys: [{ from, table, to }] }]
+   */
+  Project.prototype.schema = function () {
+    var self = this;
+    var meta = {};
+    this.objects('SELECT * FROM _qd_columns').forEach(function (m) { meta[m.table_name + '\u0000' + m.column_name] = m; });
+    return this.userTables().map(function (t) {
+      var q = QD.quoteIdent(t);
+      var cols = self.objects('PRAGMA table_info(' + q + ')').map(function (c) {
+        var m = meta[t + '\u0000' + c.name] || {};
+        return {
+          name: c.name, type: c.type || '', notNull: !!c.notnull, pk: c.pk || 0,
+          inferredType: m.inferred_type || null, originalHeader: m.original_header || null, note: m.note || null
+        };
+      });
+      var fks = self.objects('PRAGMA foreign_key_list(' + q + ')').map(function (f) {
+        return { from: f.from, table: f.table, to: f.to };
+      });
+      return { name: t, rowCount: self.scalar('SELECT count(*) FROM ' + q), columns: cols, foreignKeys: fks };
+    });
+  };
+
+  /**
+   * A compact text description of the schema for a Claude prompt: CREATE style lines, confirmed
+   * relationships, and up to sampleRows example rows per table. Long cells are clipped.
+   * No more than sampleRows rows of any table ever leave the browser.
+   */
+  Project.prototype.schemaText = function (opts) {
+    var o = opts || {}, self = this, lines = [];
+    var sampleRows = o.sampleRows == null ? 3 : o.sampleRows;
+    this.schema().forEach(function (t) {
+      lines.push('TABLE ' + QD.quoteIdent(t.name) + ' (' + t.rowCount + ' rows)');
+      t.columns.forEach(function (c) {
+        lines.push('  ' + QD.quoteIdent(c.name) + ' ' + (c.inferredType || c.type || 'TEXT').toUpperCase() + (c.pk ? ' PRIMARY KEY' : ''));
+      });
+      if (sampleRows > 0 && t.rowCount > 0) {
+        var res = self.query('SELECT * FROM ' + QD.quoteIdent(t.name) + ' LIMIT ' + sampleRows, { history: false });
+        lines.push('  sample rows:');
+        res.rows.forEach(function (r) {
+          lines.push('    ' + JSON.stringify(r.map(function (v) {
+            return (typeof v === 'string' && v.length > 40) ? v.slice(0, 40) + '...' : v;
+          })));
+        });
+      }
+      lines.push('');
+    });
+    var rel = [], seenRel = {};
+    function addRel(line) { if (!seenRel[line]) { seenRel[line] = true; rel.push(line); } }
+    this.relations('confirmed').forEach(function (r) {
+      addRel('  ' + r.fromTable + '(' + r.fromColumns.join(', ') + ') -> ' + r.toTable + '(' + r.toColumns.join(', ') + ')');
+    });
+    /* foreign keys declared inside the file itself count as confirmed */
+    this.userTables().forEach(function (t) {
+      var groups = {};
+      self.objects('PRAGMA foreign_key_list(' + QD.quoteIdent(t) + ')').forEach(function (f) { (groups[f.id] = groups[f.id] || []).push(f); });
+      Object.keys(groups).forEach(function (id) {
+        var g = groups[id].sort(function (x, y) { return x.seq - y.seq; });
+        if (g.some(function (f) { return f.to == null; })) return;
+        addRel('  ' + t + '(' + g.map(function (f) { return f.from; }).join(', ') + ') -> ' + g[0].table + '(' + g.map(function (f) { return f.to; }).join(', ') + ')');
+      });
+    });
+    if (rel.length) { lines.push('RELATIONSHIPS'); lines = lines.concat(rel); }
+    return lines.join('\n').trim();
+  };
+
+  /* ------------------------------------------------------------- data load */
+
+  /**
+   * Load parsed CSV rows as a new table.
+   *   headers: string[] original header text
+   *   rows: string[][] data rows, header excluded
+   *   opts: { tableName, fileName, tolerance, dateOrder, types: {cleanColumnName: type}, replace }
+   * Short rows are padded with nulls. Rows with extra cells keep the first N cells and count as bad rows.
+   * Cells that do not fit the chosen type become null and count as bad cells.
+   * Returns { table, rowCount, columns: [{ name, originalHeader, type, nulls, bad, note }], badRows, badCells }.
+   */
+  Project.prototype.loadTable = function (headers, rows, opts) {
+    var o = opts || {}, self = this, db = this.db;
+    var ncol = headers.length;
+    if (ncol === 0) throw new Error('The file has no columns.');
+    var existing = this.userTables().concat(this.userViews());
+    var tname = QD.cleanName(o.tableName || o.fileName || 'table', 'table');
+    if (o.replace && this.hasTable(tname)) this.dropTable(tname);
+    else tname = QD.uniqueNames([tname], existing)[0];
+    var names = QD.uniqueNames(headers.map(function (h, i) { return QD.cleanName(h, 'col_' + (i + 1)); }));
+    var infos = [], c, r, i;
+    for (c = 0; c < ncol; c += 1) {
+      var colVals = new Array(rows.length);
+      for (r = 0; r < rows.length; r += 1) colVals[r] = rows[r][c];
+      var inf = QD.inferColumn(colVals, { tolerance: o.tolerance || 0, dateOrder: o.dateOrder });
+      var forced = o.types && o.types[names[c]];
+      if (forced && forced !== inf.type) {
+        inf = { type: forced, nulls: inf.nulls, count: inf.count, dateOrder: inf.dateOrder || o.dateOrder || 'mdy',
+          money: forced === 'real', nearMiss: null, note: 'Type set by hand.' };
+      }
+      infos.push(inf);
+    }
+    var ddl = 'CREATE TABLE ' + QD.quoteIdent(tname) + ' (' + names.map(function (nm, k) {
+      return QD.quoteIdent(nm) + ' ' + QD.affinity(infos[k].type);
+    }).join(', ') + ')';
+    var badRows = 0, badCells = 0, badPer = new Array(ncol).fill(0), nullPer = new Array(ncol).fill(0);
+    db.run('BEGIN');
+    try {
+      db.run(ddl);
+      var st = db.prepare('INSERT INTO ' + QD.quoteIdent(tname) + ' VALUES (' + names.map(function () { return '?'; }).join(',') + ')');
+      try {
+        var vals = new Array(ncol);
+        for (r = 0; r < rows.length; r += 1) {
+          var row = rows[r];
+          if (row.length > ncol) badRows += 1;
+          for (c = 0; c < ncol; c += 1) {
+            var cv = QD.convertValue(c < row.length ? row[c] : null, infos[c]);
+            if (cv.bad) { badCells += 1; badPer[c] += 1; }
+            if (cv.v === null) nullPer[c] += 1;
+            vals[c] = cv.v;
+          }
+          st.run(vals);
+        }
+      } finally { st.free(); }
+      db.run('INSERT INTO _qd_sources (table_name, file_name, row_count, col_count, bad_rows, bad_cells, loaded_at, options_json) VALUES (?,?,?,?,?,?,?,?)',
+        [tname, o.fileName || null, rows.length, ncol, badRows, badCells, QD.now(),
+          JSON.stringify({ tolerance: o.tolerance || 0, dateOrder: o.dateOrder || null })]);
+      for (i = 0; i < ncol; i += 1) {
+        db.run('INSERT OR REPLACE INTO _qd_columns (table_name, column_name, ordinal, original_header, inferred_type, null_count, bad_count, note) VALUES (?,?,?,?,?,?,?,?)',
+          [tname, names[i], i, String(headers[i]), infos[i].type, nullPer[i], badPer[i], infos[i].note || null]);
+      }
+      db.run('COMMIT');
+    } catch (e) {
+      try { db.run('ROLLBACK'); } catch (e2) { /* nothing to roll back */ }
+      throw e;
+    }
+    this._touch('schema');
+    return {
+      table: tname, rowCount: rows.length, badRows: badRows, badCells: badCells,
+      columns: names.map(function (nm, k) {
+        return { name: nm, originalHeader: String(headers[k]), type: infos[k].type, nulls: nullPer[k], bad: badPer[k],
+          note: infos[k].note || '', nearMiss: infos[k].nearMiss };
+      })
+    };
+  };
+
+  /** Parse CSV text and load it. The first row is the header unless opts.header === false. */
+  Project.prototype.loadCSV = function (text, opts) {
+    var o = opts || {};
+    var parsed = QD.parseCSV(text, { delimiter: o.delimiter });
+    var rows = parsed.rows;
+    if (rows.length === 0) throw new Error('The file is empty.');
+    var headers;
+    if (o.header === false) {
+      var width = rows.reduce(function (m, r) { return Math.max(m, r.length); }, 0);
+      headers = []; for (var i = 0; i < width; i += 1) headers.push('col_' + (i + 1));
+    } else {
+      headers = rows[0]; rows = rows.slice(1);
+    }
+    var res = this.loadTable(headers, rows, o);
+    res.delimiter = parsed.delimiter;
+    return res;
+  };
+
+  /** Remove a user table and every piece of project metadata that points at it. */
+  Project.prototype.dropTable = function (name) {
+    if (String(name).toLowerCase().indexOf(QD.PREFIX) === 0) throw new Error('Reserved tables cannot be dropped.');
+    var db = this.db;
+    db.run('BEGIN');
+    try {
+      db.run('DROP TABLE IF EXISTS ' + QD.quoteIdent(name));
+      db.run('DELETE FROM _qd_sources WHERE table_name = ?', [name]);
+      db.run('DELETE FROM _qd_columns WHERE table_name = ?', [name]);
+      db.run('DELETE FROM _qd_keys WHERE table_name = ?', [name]);
+      db.run('DELETE FROM _qd_relations WHERE from_table = ? OR to_table = ?', [name, name]);
+      db.run('COMMIT');
+    } catch (e) { try { db.run('ROLLBACK'); } catch (e2) { /* ignore */ } throw e; }
+    this._touch('schema');
+  };
+
+  /* ---------------------------------------------------------------- queries */
+
+  function clip(v) {
+    return (typeof v === 'string' && v.length > 100000) ? v.slice(0, 100000) : v;
+  }
+
+  /**
+   * Run one read only statement and return a result set. This is the path for anything typed by
+   * a person or written by Claude. Two guards apply: the text check, then PRAGMA query_only.
+   *   opts: { params, maxRows (default QD.LIMITS.resultRows), history (default true) }
+   * Returns { columns, rows, rowCount, truncated, ms }. rowCount is the number of rows returned,
+   * and truncated is true when the statement had more rows than maxRows.
+   * Throws an Error whose message is safe to show. err.kind is 'guard' or 'sql'.
+   */
+  Project.prototype.query = function (sql, opts) {
+    var o = opts || {}, self = this;
+    var guard = QD.checkReadOnly(sql);
+    if (!guard.ok) {
+      var ge = new Error(guard.reason); ge.kind = 'guard';
+      if (o.history !== false) this._log(sql, 0, 0, false, guard.reason);
+      throw ge;
+    }
+    var maxRows = o.maxRows || QD.LIMITS.resultRows;
+    var t0 = QD._clock(), cols = [], rows = [], truncated = false, st = null;
+    this.db.run('PRAGMA query_only = 1');
+    try {
+      st = this.db.prepare(guard.statement);
+      if (o.params) st.bind(o.params);
+      cols = st.getColumnNames();
+      while (st.step()) {
+        if (rows.length >= maxRows) { truncated = true; break; }
+        rows.push(st.get().map(clip));
+      }
+    } catch (e) {
+      var se = new Error(QD.explainError(e.message, this)); se.kind = 'sql'; se.raw = e.message;
+      if (st) { try { st.free(); } catch (e3) { /* ignore */ } st = null; }
+      this.db.run('PRAGMA query_only = 0');
+      if (o.history !== false) this._log(sql, QD._clock() - t0, 0, false, e.message);
+      throw se;
+    }
+    if (st) st.free();
+    this.db.run('PRAGMA query_only = 0');
+    var ms = QD._clock() - t0;
+    if (o.history !== false) this._log(sql, ms, rows.length, true, null);
+    return { columns: cols, rows: rows, rowCount: rows.length, truncated: truncated, ms: ms };
+  };
+
+  /**
+   * Run a script that may change the database. Only for trusted callers: Table Forge, the Clinic
+   * seeder, and a Query Bench session where the person has switched writes on.
+   * Reserved tables are protected by a text check. Returns the result of the last statement that
+   * produced rows, or null.
+   */
+  Project.prototype.execute = function (sql, opts) {
+    var o = opts || {}, parts = QD.splitStatements(sql), last = null, self = this, i;
+    for (i = 0; i < parts.length; i += 1) {
+      var masked = QD.maskSql(parts[i]).toUpperCase();
+      var bare = parts[i].toUpperCase();
+      if (!o.allowReserved && bare.indexOf('_QD_') !== -1 && /\b(INSERT|UPDATE|DELETE|DROP|ALTER|REPLACE|CREATE)\b/.test(masked)) {
+        var pe = new Error('Tables that start with _qd_ belong to Query Desk and cannot be changed here.'); pe.kind = 'guard';
+        throw pe;
+      }
+      if (/^\s*(ATTACH|DETACH)\b/.test(masked)) {
+        var ae = new Error('ATTACH and DETACH are not available in the browser.'); ae.kind = 'guard';
+        throw ae;
+      }
+    }
+    var t0 = QD._clock();
+    try {
+      for (i = 0; i < parts.length; i += 1) {
+        var st = this.db.prepare(parts[i]);
+        try {
+          var cols = st.getColumnNames(), rows = [];
+          while (st.step()) { if (rows.length < QD.LIMITS.resultRows) rows.push(st.get().map(clip)); }
+          if (cols.length) last = { columns: cols, rows: rows, rowCount: rows.length, truncated: false, ms: 0 };
+        } finally { st.free(); }
+      }
+    } catch (e) {
+      var se = new Error(QD.explainError(e.message, this)); se.kind = 'sql'; se.raw = e.message;
+      if (o.history !== false) this._log(sql, QD._clock() - t0, 0, false, e.message);
+      throw se;
+    }
+    var ms = QD._clock() - t0;
+    if (last) last.ms = ms;
+    if (o.history !== false) this._log(sql, ms, last ? last.rowCount : 0, true, null);
+    this._touch('schema');
+    return last;
+  };
+
+  Project.prototype._log = function (sql, ms, rowCount, ok, error) {
+    try {
+      this.db.run('INSERT INTO _qd_history (sql, ran_at, ms, row_count, ok, error) VALUES (?,?,?,?,?,?)',
+        [String(sql), QD.now(), ms, rowCount, ok ? 1 : 0, error || null]);
+      this.db.run('DELETE FROM _qd_history WHERE id <= (SELECT max(id) FROM _qd_history) - ' + QD.HISTORY_KEEP);
+      this._touch('history');
+    } catch (e) { /* history is best effort */ }
+  };
+  Project.prototype.history = function (limit) {
+    return this.objects('SELECT id, sql, ran_at, ms, row_count, ok, error FROM _qd_history ORDER BY id DESC LIMIT ' + (limit | 0 || 50));
+  };
+
+  QD._clock = function () {
+    return (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+  };
+
+  function editDistance(a, b) {
+    var m = a.length, n = b.length, i, j, prev = [], cur = [];
+    for (j = 0; j <= n; j += 1) prev[j] = j;
+    for (i = 1; i <= m; i += 1) {
+      cur = [i];
+      for (j = 1; j <= n; j += 1) {
+        cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      }
+      prev = cur;
+    }
+    return prev[n];
+  }
+  function closest(word, list) {
+    var best = null, bd = 99, w = String(word).toLowerCase();
+    list.forEach(function (x) {
+      var d = editDistance(w, String(x).toLowerCase());
+      if (d < bd) { bd = d; best = x; }
+    });
+    return (best !== null && bd <= Math.max(2, Math.floor(w.length / 3))) ? best : null;
+  }
+
+  /** Turn a raw SQLite error into one plain sentence, with a suggestion when a name is close to a real one. */
+  QD.explainError = function (raw, project) {
+    var msg = String(raw || 'Unknown error'), m, hint;
+    if ((m = /no such table: (.+)$/.exec(msg))) {
+      hint = project ? closest(m[1].replace(/^main\./, ''), project.userTables().concat(project.userViews())) : null;
+      return 'There is no table named ' + m[1] + '.' + (hint ? ' Did you mean ' + hint + '?' : '');
+    }
+    if ((m = /no such column: (.+)$/.exec(msg))) {
+      var col = m[1].split('.').pop(), all = [];
+      if (project) project.schema().forEach(function (t) { t.columns.forEach(function (c) { all.push(c.name); }); });
+      hint = closest(col, all);
+      return 'There is no column named ' + m[1] + '.' + (hint ? ' Did you mean ' + hint + '?' : '') +
+        ' Text values need single quotes, and double quotes mean a column name.';
+    }
+    if ((m = /ambiguous column name: (.+)$/.exec(msg))) {
+      return 'The column ' + m[1] + ' exists in more than one table in this query. Put the table name in front of it, like table.' + m[1] + '.';
+    }
+    if ((m = /near "(.+?)": syntax error/.exec(msg))) {
+      return 'SQLite could not read the query at or just before ' + m[1] + '. Check for a missing comma, a missing quote, or a keyword out of order.';
+    }
+    if (/incomplete input/.test(msg)) return 'The query ends too soon. Check for an unclosed parenthesis or quote.';
+    if (/readonly database|read-only/.test(msg)) return 'This statement tries to change data, and only SELECT statements can run here.';
+    if ((m = /no such function: (.+)$/.exec(msg))) {
+      return 'SQLite has no function named ' + m[1] + '. SQL Server functions such as GETDATE, DATEPART, ISNULL and LEN have different names here.';
+    }
+    if (/misuse of aggregate/.test(msg)) return 'An aggregate such as COUNT or SUM is used where it is not allowed. Filters on aggregates belong in HAVING, not WHERE.';
+    if ((m = /misuse of window function (.+)$/.exec(msg))) return 'The window function ' + m[1] + ' cannot be used in WHERE or GROUP BY. Wrap the query in a CTE and filter outside it.';
+    if (/SELECTs to the left and right of (UNION|EXCEPT|INTERSECT).* do not have the same number/.test(msg)) {
+      return 'Both halves of a UNION, EXCEPT or INTERSECT must return the same number of columns.';
+    }
+    if (/table .* already exists/.test(msg)) return msg.charAt(0).toUpperCase() + msg.slice(1) + '.';
+    return 'SQLite reported: ' + msg;
+  };
+
+  /* --------------------------------------------------------- saved queries */
+
+  Project.prototype.saveQuery = function (q) {
+    var now = QD.now();
+    if (q.id) {
+      this.db.run('UPDATE _qd_queries SET name = ?, sql = ?, note = ?, pinned = ?, updated_at = ? WHERE id = ?',
+        [q.name, q.sql, q.note || null, q.pinned ? 1 : 0, now, q.id]);
+      this._touch('queries');
+      return q.id;
+    }
+    this.db.run('INSERT INTO _qd_queries (name, sql, note, origin, question, pinned, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?)',
+      [q.name || 'Untitled query', q.sql, q.note || null, q.origin || 'manual', q.question || null, q.pinned ? 1 : 0, now, now]);
+    var id = this.scalar('SELECT last_insert_rowid()');
+    this._touch('queries');
+    return id;
+  };
+  Project.prototype.queries = function () {
+    return this.objects('SELECT * FROM _qd_queries ORDER BY pinned DESC, updated_at DESC, id DESC');
+  };
+  Project.prototype.getQuery = function (id) {
+    return this.objects('SELECT * FROM _qd_queries WHERE id = ?', [id])[0] || null;
+  };
+  Project.prototype.deleteQuery = function (id) {
+    this.db.run('DELETE FROM _qd_charts WHERE query_id = ?', [id]);
+    this.db.run("DELETE FROM _qd_notebook WHERE kind = 'query' AND ref_id = ?", [id]);
+    this.db.run('DELETE FROM _qd_queries WHERE id = ?', [id]);
+    this._touch('queries');
+  };
+
+  /* ---------------------------------------------------------------- charts */
+
+  QD.CHART_TYPES = ['bar', 'line', 'scatter', 'pie', 'tile'];
+  QD.CHART_SORTS = ['none', 'asc', 'desc'];
+  QD.CHART_KEYS = ['type', 'x', 'y', 'series', 'stacked', 'sort', 'limit', 'title'];
+
+  /**
+   * Check a chart spec against the fixed shape shared by Days 198 and 200:
+   * { type, x, y, series, stacked, sort, limit, title } and nothing else.
+   * Returns { ok, reason }.
+   */
+  QD.validateChartSpec = function (spec) {
+    function no(reason) { return { ok: false, reason: reason }; }
+    if (!spec || typeof spec !== 'object' || Array.isArray(spec)) return no('A chart spec must be an object.');
+    var keys = Object.keys(spec), i;
+    for (i = 0; i < keys.length; i += 1) {
+      if (QD.CHART_KEYS.indexOf(keys[i]) < 0) return no('A chart spec cannot carry ' + keys[i] + '.');
+    }
+    for (i = 0; i < QD.CHART_KEYS.length; i += 1) {
+      if (!(QD.CHART_KEYS[i] in spec)) return no('A chart spec needs ' + QD.CHART_KEYS[i] + '.');
+    }
+    if (QD.CHART_TYPES.indexOf(spec.type) < 0) return no('The chart type must be one of ' + QD.CHART_TYPES.join(', ') + '.');
+    function name(v) { return typeof v === 'string' && v.length > 0 && v.length <= 200; }
+    if (spec.type === 'tile') { if (spec.x !== null && !name(spec.x)) return no('x must be a column name or null.'); }
+    else if (!name(spec.x)) return no('x must be a column name.');
+    if (!Array.isArray(spec.y) || spec.y.length < 1 || spec.y.length > 4) return no('y must list one to four columns.');
+    for (i = 0; i < spec.y.length; i += 1) { if (!name(spec.y[i])) return no('Every y entry must be a column name.'); }
+    if (spec.series !== null && !name(spec.series)) return no('series must be a column name or null.');
+    if (typeof spec.stacked !== 'boolean') return no('stacked must be true or false.');
+    if (QD.CHART_SORTS.indexOf(spec.sort) < 0) return no('sort must be none, asc or desc.');
+    if (typeof spec.limit !== 'number' || Math.floor(spec.limit) !== spec.limit || spec.limit < 1 || spec.limit > 1000) {
+      return no('limit must be a whole number from 1 to 1000.');
+    }
+    if (typeof spec.title !== 'string' || spec.title.length > 200) return no('title must be text of 200 characters or fewer.');
+    return { ok: true, reason: null };
+  };
+
+  function checkSpec(spec) {
+    var v = QD.validateChartSpec(spec);
+    if (!v.ok) { var e = new Error(v.reason); e.kind = 'spec'; throw e; }
+  }
+  function chartRow(r) {
+    var spec = null;
+    try { spec = JSON.parse(r.spec_json); } catch (e) { spec = null; }
+    return { id: r.id, queryId: r.query_id, name: r.name, spec: spec, position: r.position, createdAt: r.created_at };
+  }
+
+  /** Pin a chart. c: { queryId, spec, position }. Without a position it goes to the end of the board. Returns the id. */
+  Project.prototype.saveChart = function (c) {
+    checkSpec(c.spec);
+    var pos = c.position;
+    if (pos == null) pos = Number(this.scalar('SELECT coalesce(max(position), -1) + 1 FROM _qd_charts'));
+    this.db.run('INSERT INTO _qd_charts (query_id, name, spec_json, position, created_at) VALUES (?,?,?,?,?)',
+      [c.queryId == null ? null : c.queryId, c.spec.title || null, JSON.stringify(c.spec), pos, QD.now()]);
+    var id = this.scalar('SELECT last_insert_rowid()');
+    this._touch('charts');
+    return id;
+  };
+  /** Pinned charts in board order. */
+  Project.prototype.charts = function () {
+    return this.objects('SELECT * FROM _qd_charts ORDER BY position, id').map(chartRow);
+  };
+  Project.prototype.updateChart = function (id, spec) {
+    checkSpec(spec);
+    this.db.run('UPDATE _qd_charts SET spec_json = ?, name = ? WHERE id = ?', [JSON.stringify(spec), spec.title || null, id]);
+    this._touch('charts');
+  };
+  /** Move a chart to a zero based place on the board and renumber the rest in order. */
+  Project.prototype.moveChart = function (id, position) {
+    var ids = this.charts().map(function (c) { return c.id; }), from = ids.indexOf(id), db = this.db;
+    if (from < 0) return;
+    ids.splice(from, 1);
+    var to = Math.max(0, Math.min(ids.length, Math.floor(position)));
+    ids.splice(to, 0, id);
+    ids.forEach(function (cid, i) { db.run('UPDATE _qd_charts SET position = ? WHERE id = ?', [i, cid]); });
+    this._touch('charts');
+  };
+  Project.prototype.deleteChart = function (id) {
+    this.db.run('DELETE FROM _qd_charts WHERE id = ?', [id]);
+    this.db.run("DELETE FROM _qd_notebook WHERE kind = 'chart' AND ref_id = ?", [id]);
+    this._touch('charts');
+  };
+
+  /* ------------------------------------------------- keys and relationships */
+
+  function parseCols(row, field) {
+    try { return JSON.parse(row[field]); } catch (e) { return []; }
+  }
+  function sameCols(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
+
+  /**
+   * Store a primary key decision. status is proposed, confirmed or rejected.
+   * Confirming one key for a table demotes any other confirmed key for that table to proposed.
+   */
+  Project.prototype.setKey = function (table, columns, status, score, evidence) {
+    var existing = this.objects('SELECT * FROM _qd_keys WHERE table_name = ?', [table]).filter(function (k) {
+      return sameCols(parseCols(k, 'columns_json'), columns);
+    })[0];
+    if (status === 'confirmed') {
+      this.db.run("UPDATE _qd_keys SET status = 'proposed' WHERE table_name = ? AND status = 'confirmed'", [table]);
+    }
+    if (existing) {
+      this.db.run('UPDATE _qd_keys SET status = ?, score = coalesce(?, score), evidence_json = coalesce(?, evidence_json), updated_at = ? WHERE id = ?',
+        [status, score == null ? null : score, evidence ? JSON.stringify(evidence) : null, QD.now(), existing.id]);
+    } else {
+      this.db.run('INSERT INTO _qd_keys (table_name, columns_json, status, score, evidence_json, updated_at) VALUES (?,?,?,?,?,?)',
+        [table, JSON.stringify(columns), status, score == null ? null : score, evidence ? JSON.stringify(evidence) : null, QD.now()]);
+    }
+    this._touch('keys');
+  };
+  Project.prototype.keys = function (status) {
+    return this.objects('SELECT * FROM _qd_keys' + (status ? ' WHERE status = ?' : '') + ' ORDER BY table_name, score DESC', status ? [status] : undefined)
+      .map(function (k) {
+        return { id: k.id, table: k.table_name, columns: parseCols(k, 'columns_json'), status: k.status, score: k.score,
+          evidence: k.evidence_json ? JSON.parse(k.evidence_json) : null };
+      });
+  };
+
+  /** Store a relationship decision. rel: { fromTable, fromColumns, toTable, toColumns, status, score, cardinality, evidence } */
+  Project.prototype.setRelation = function (rel) {
+    var existing = this.objects('SELECT * FROM _qd_relations WHERE from_table = ? AND to_table = ?', [rel.fromTable, rel.toTable]).filter(function (r) {
+      return sameCols(parseCols(r, 'from_columns_json'), rel.fromColumns) && sameCols(parseCols(r, 'to_columns_json'), rel.toColumns);
+    })[0];
+    var ev = rel.evidence ? JSON.stringify(rel.evidence) : null;
+    if (existing) {
+      this.db.run('UPDATE _qd_relations SET status = ?, score = coalesce(?, score), cardinality = coalesce(?, cardinality), evidence_json = coalesce(?, evidence_json), updated_at = ? WHERE id = ?',
+        [rel.status || existing.status, rel.score == null ? null : rel.score, rel.cardinality || null, ev, QD.now(), existing.id]);
+      this._touch('relations');
+      return existing.id;
+    }
+    this.db.run('INSERT INTO _qd_relations (from_table, from_columns_json, to_table, to_columns_json, status, score, cardinality, evidence_json, updated_at) VALUES (?,?,?,?,?,?,?,?,?)',
+      [rel.fromTable, JSON.stringify(rel.fromColumns), rel.toTable, JSON.stringify(rel.toColumns), rel.status || 'proposed',
+        rel.score == null ? null : rel.score, rel.cardinality || null, ev, QD.now()]);
+    var id = this.scalar('SELECT last_insert_rowid()');
+    this._touch('relations');
+    return id;
+  };
+  Project.prototype.relations = function (status) {
+    return this.objects('SELECT * FROM _qd_relations' + (status ? ' WHERE status = ?' : '') + ' ORDER BY from_table, score DESC', status ? [status] : undefined)
+      .map(function (r) {
+        return { id: r.id, fromTable: r.from_table, fromColumns: parseCols(r, 'from_columns_json'), toTable: r.to_table,
+          toColumns: parseCols(r, 'to_columns_json'), status: r.status, score: r.score, cardinality: r.cardinality,
+          evidence: r.evidence_json ? JSON.parse(r.evidence_json) : null };
+      });
+  };
+  Project.prototype.deleteRelation = function (id) {
+    this.db.run('DELETE FROM _qd_relations WHERE id = ?', [id]); this._touch('relations');
+  };
+
+  /* -------------------------------------------------------- result compare */
+
+  function canon(v) {
+    if (v === null || v === undefined) return null;
+    if (typeof v === 'number') return v;
+    if (v instanceof Uint8Array) return 'b:' + Array.prototype.join.call(v, ',');
+    var s = String(v), t = s.trim();
+    if (/^[+-]?(\d+\.?\d*|\.\d+)$/.test(t) && t === String(Number(t))) return Number(t);
+    return s;
+  }
+  function sortKey(v) {
+    if (v === null) return '0';
+    if (typeof v === 'number') return '1' + (isFinite(v) ? (Math.round(v * 100) / 100 + 1e15).toFixed(2) : String(v));
+    return '2' + v;
+  }
+  function cellEq(a, b, tol) {
+    if (a === null || b === null) return a === b;
+    if (typeof a === 'number' && typeof b === 'number') return a === b || Math.abs(a - b) <= tol;
+    return a === b;
+  }
+
+  /**
+   * Compare a learner result with a reference result. Column names never matter; column order does
+   * unless opts.anyColumnOrder is true. Row order matters only when opts.ordered is true.
+   * Numbers match within opts.tolerance (default 0.0051, so a value and its two place rounding agree).
+   * Numeric text such as '2' equals the number 2, but '02' does not. NULL equals only NULL.
+   * Returns { match, reason } where reason is one plain sentence a learner can act on.
+   */
+  QD.compareResults = function (got, want, opts) {
+    var o = opts || {}, tol = o.tolerance || 0.0051;
+    if (got.truncated || want.truncated) return { match: false, reason: 'The result is too large to check. Narrow the query.' };
+    if (got.columns.length !== want.columns.length) {
+      return { match: false, reason: 'Expected ' + want.columns.length + ' column' + (want.columns.length === 1 ? '' : 's') + ' and got ' + got.columns.length + '.' };
+    }
+    if (got.rows.length !== want.rows.length) {
+      return { match: false, reason: 'Expected ' + want.rows.length + ' row' + (want.rows.length === 1 ? '' : 's') + ' and got ' + got.rows.length + '.' };
+    }
+    var W = want.rows.map(function (r) { return r.map(canon); });
+    var G0 = got.rows.map(function (r) { return r.map(canon); });
+    function byKey(x, y) {
+      var kx = x.map(sortKey).join('\u0001'), ky = y.map(sortKey).join('\u0001');
+      return kx < ky ? -1 : (kx > ky ? 1 : 0);
+    }
+    function same(G, ordered) {
+      var a = ordered ? G : G.slice().sort(byKey), b = ordered ? W : W.slice().sort(byKey), i, j;
+      for (i = 0; i < b.length; i += 1) {
+        for (j = 0; j < b[i].length; j += 1) if (!cellEq(a[i][j], b[i][j], tol)) return false;
+      }
+      return true;
+    }
+    function check(G) {
+      if (same(G, !!o.ordered)) return 'match';
+      if (o.ordered && same(G, false)) return 'order';
+      return 'no';
+    }
+    var res = check(G0);
+    if (res === 'match') return { match: true, reason: '' };
+    if (o.anyColumnOrder && want.columns.length <= 6) {
+      var idx = want.columns.map(function (_, i) { return i; }), best = res;
+      (function permute(arr, k) {
+        if (best === 'match') return;
+        if (k === arr.length) {
+          var r = check(G0.map(function (row) { return arr.map(function (c) { return row[c]; }); }));
+          if (r === 'match' || (r === 'order' && best === 'no')) best = r;
+          return;
+        }
+        for (var i = k; i < arr.length; i += 1) {
+          var t = arr[k]; arr[k] = arr[i]; arr[i] = t;
+          permute(arr, k + 1);
+          t = arr[k]; arr[k] = arr[i]; arr[i] = t;
+        }
+      })(idx, 0);
+      res = best;
+      if (res === 'match') return { match: true, reason: '' };
+    }
+    if (res === 'order') return { match: false, reason: 'The rows are right but the order is not. Check ORDER BY.' };
+    return { match: false, reason: 'The shape is right but some values differ from the expected result.' };
+  };
+
+  /* -------------------------------------------------------------- CSV out */
+
+  QD.toCSV = function (result) {
+    function cell(v) {
+      if (v === null || v === undefined) return '';
+      var s = String(v);
+      if (/^[=+\-@\t\r]/.test(s) && typeof v === 'string') s = "'" + s;
+      return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }
+    var lines = [result.columns.map(cell).join(',')];
+    result.rows.forEach(function (r) { lines.push(r.map(cell).join(',')); });
+    return lines.join('\r\n') + '\r\n';
+  };
+
+  /* ---------------------------------------------------------------- storage */
+
+  /**
+   * Project storage in IndexedDB, shared by every Query Desk app on the same origin
+   * (all AppADay apps share augustineiacopelli.github.io, so a project made in one app opens in the next).
+   * Every method returns a promise and never rejects for a missing or blocked IndexedDB: it resolves
+   * to null, false or [] so an app keeps working without persistence.
+   */
+  QD.store = (function () {
+    var DB_NAME = 'querydesk', STORE = 'projects', dbp = null;
+    function idb() { return root.indexedDB || null; }
+    function openDb() {
+      if (dbp) return dbp;
+      dbp = new Promise(function (resolve) {
+        var f = idb();
+        if (!f) { resolve(null); return; }
+        var req;
+        try { req = f.open(DB_NAME, 1); } catch (e) { resolve(null); return; }
+        req.onupgradeneeded = function () {
+          if (!req.result.objectStoreNames.contains(STORE)) req.result.createObjectStore(STORE, { keyPath: 'name' });
+        };
+        req.onsuccess = function () { resolve(req.result); };
+        req.onerror = function () { resolve(null); };
+        req.onblocked = function () { resolve(null); };
+      });
+      return dbp;
+    }
+    function tx(mode, fn, fallback) {
+      return openDb().then(function (db) {
+        if (!db) return fallback;
+        return new Promise(function (resolve) {
+          var out = fallback, t;
+          try { t = db.transaction(STORE, mode); } catch (e) { resolve(fallback); return; }
+          var req = fn(t.objectStore(STORE));
+          if (req) req.onsuccess = function () { out = req.result; };
+          t.oncomplete = function () { resolve(out === undefined ? fallback : out); };
+          t.onerror = function () { resolve(fallback); };
+          t.onabort = function () { resolve(fallback); };
+        });
+      });
+    }
+    return {
+      /** Save bytes under a project name. Resolves true on success. */
+      save: function (name, bytes, appTag) {
+        var rec = { name: name, bytes: bytes, size: bytes.length, savedAt: QD.now(), app: appTag || null };
+        return tx('readwrite', function (s) { return s.put(rec); }, false).then(function (r) { return r !== false; });
+      },
+      /** Resolves { name, bytes, size, savedAt, app } or null. */
+      load: function (name) {
+        return tx('readonly', function (s) { return s.get(name); }, null).then(function (r) { return r || null; });
+      },
+      /** Resolves [{ name, size, savedAt, app }] newest first, without the bytes. */
+      list: function () {
+        return tx('readonly', function (s) { return s.getAll(); }, []).then(function (all) {
+          return (all || []).map(function (r) { return { name: r.name, size: r.size, savedAt: r.savedAt, app: r.app }; })
+            .sort(function (a, b) { return a.savedAt < b.savedAt ? 1 : -1; });
+        });
+      },
+      remove: function (name) {
+        return tx('readwrite', function (s) { s.delete(name); return null; }, false).then(function () { return true; });
+      },
+      _reset: function () { dbp = null; }
+    };
+  })();
+
+  /**
+   * Save the project to IndexedDB shortly after each change. Returns { flush(), stop() }.
+   * History only changes are saved on a longer delay so running queries does not thrash storage.
+   */
+  QD.autosave = function (project, opts) {
+    var o = opts || {}, delay = o.delay || 1500, timer = null, stopped = false, appTag = o.app || null;
+    function flush() {
+      if (timer) { clearTimeout(timer); timer = null; }
+      if (stopped || project.closed) return Promise.resolve(false);
+      var bytes = project.export(appTag);
+      return QD.store.save(project.name, bytes, appTag).then(function (ok) {
+        if (o.onSave) { try { o.onSave(ok, bytes.length); } catch (e) { /* ignore */ } }
+        return ok;
+      });
+    }
+    var off = project.onChange(function (kind) {
+      if (stopped) return;
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(flush, kind === 'history' ? delay * 4 : delay);
+    });
+    return { flush: flush, stop: function () { stopped = true; if (timer) clearTimeout(timer); off(); } };
+  };
+
+  /* ------------------------------------------------------------ file helpers */
+
+  /** Browser only. Offer bytes or text as a download. */
+  QD.download = function (data, filename, mime) {
+    var blob = new Blob([data], { type: mime || 'application/octet-stream' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = filename; a.style.display = 'none';
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+  };
+  QD.fileName = function (project) {
+    return QD.cleanName(project.name, 'project').replace(/_/g, '-') + '.sqlite';
+  };
+  /** Browser only. Read a File as bytes or text. */
+  QD.readFile = function (file, asText) {
+    return new Promise(function (resolve, reject) {
+      var fr = new FileReader();
+      fr.onload = function () { resolve(asText ? fr.result : new Uint8Array(fr.result)); };
+      fr.onerror = function () { reject(new Error('The file could not be read.')); };
+      if (asText) fr.readAsText(file); else fr.readAsArrayBuffer(file);
+    });
+  };
+  QD.isPhone = function () {
+    return typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent || '');
+  };
+  /** Returns 'ok', 'warn' or 'refuse' for a file of this many bytes on this device. */
+  QD.sizeVerdict = function (bytes) {
+    var lim = QD.isPhone() ? QD.LIMITS.phone : QD.LIMITS.desktop;
+    return bytes > lim.max ? 'refuse' : (bytes > lim.warn ? 'warn' : 'ok');
+  };
+  QD.formatBytes = function (n) {
+    if (n < 1024) return n + ' B';
+    if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
+    return (n / 1048576).toFixed(1) + ' MB';
+  };
+
+  /* ------------------------------------------------------------------ Claude */
+
+  var thinkingForm = {};
+  var THINK_FORMS = [{ type: 'between_tools' }, { type: 'disabled' }, null];
+
+  /**
+   * One Claude call under the AppADay conventions.
+   *   opts: { tier ('sonnet'), system, messages | prompt, maxTokens (1500), signal }
+   * The key comes from window.AppKeys and the model from window.AppModels. Never call this at the
+   * top level of a script: keys.js is deferred. Resolves { text, stopReason, model } or null when the
+   * person declines to give a key. Rejects with a plain language Error otherwise.
+   */
+  QD.claude = function (opts) {
+    var o = opts || {};
+    var fetchFn = o.fetch || root.fetch;
+    var keys = o.keys || root.AppKeys, models = o.models || root.AppModels;
+    if (!keys || !models) return Promise.reject(new Error('The shared key and model scripts did not load. Check the connection and reload.'));
+    var model = models.id(o.tier || 'sonnet');
+    return Promise.resolve(keys.get()).then(function (key) {
+      if (!key) return null;
+      var messages = o.messages || [{ role: 'user', content: String(o.prompt || '') }];
+      var start = thinkingForm[model] === undefined ? 0 : thinkingForm[model];
+      function attempt(formIdx, retried) {
+        var body = { model: model, max_tokens: o.maxTokens || 1500, messages: messages };
+        if (o.system) body.system = o.system;
+        if (THINK_FORMS[formIdx]) body.thinking = THINK_FORMS[formIdx];
+        return fetchFn('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          signal: o.signal,
+          headers: {
+            'content-type': 'application/json',
+            'x-api-key': key,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true'
+          },
+          body: JSON.stringify(body)
+        }).then(function (resp) {
+          return resp.text().then(function (raw) {
+            var data = null;
+            try { data = JSON.parse(raw); } catch (e) { data = null; }
+            if (resp.ok && data) {
+              thinkingForm[model] = formIdx;
+              var text = (data.content || []).filter(function (b) { return b.type === 'text'; })
+                .map(function (b) { return b.text; }).join('');
+              if (!text.trim()) {
+                var kinds = (data.content || []).map(function (b) { return b.type; }).join(', ') || 'none';
+                if (root.console) root.console.warn('QD.claude: empty reply. blocks: ' + kinds + ' stop_reason: ' + data.stop_reason);
+                throw new Error('Claude returned an empty reply. Try again.');
+              }
+              return { text: text, stopReason: data.stop_reason, model: data.model || model };
+            }
+            var emsg = (data && data.error && data.error.message) || ('HTTP ' + resp.status);
+            if (resp.status === 400 && /thinking/i.test(emsg) && formIdx < THINK_FORMS.length - 1) {
+              return attempt(formIdx + 1, retried);
+            }
+            if ((resp.status === 429 || resp.status >= 500) && !retried) {
+              return new Promise(function (r) { setTimeout(r, o.retryDelay == null ? 1500 : o.retryDelay); })
+                .then(function () { return attempt(formIdx, true); });
+            }
+            if (resp.status === 401) throw new Error('The API key was rejected. Open Settings and check the key.');
+            if (resp.status === 429) throw new Error('Claude is rate limited right now. Wait a minute and try again.');
+            if (resp.status >= 500) throw new Error('Claude is having trouble right now. Try again in a moment.');
+            throw new Error('Claude could not answer: ' + emsg);
+          });
+        }, function (netErr) {
+          if (netErr && netErr.name === 'AbortError') throw netErr;
+          throw new Error('The request could not reach Claude. Check the connection.');
+        });
+      }
+      return attempt(start, false);
+    });
+  };
+  QD.claude._resetThinking = function () { thinkingForm = {}; };
+
+  /** Pull the first fenced or bare JSON object out of a Claude reply. Returns the parsed value or null. */
+  QD.extractJSON = function (text) {
+    var s = String(text || '');
+    var fence = /```(?:json)?\s*([\s\S]*?)```/.exec(s);
+    var cand = fence ? fence[1] : s;
+    var a = cand.indexOf('{'), b = cand.lastIndexOf('}');
+    if (a === -1 || b <= a) return null;
+    try { return JSON.parse(cand.slice(a, b + 1)); } catch (e) { return null; }
+  };
+
+  root.QD = QD;
+  if (typeof module !== 'undefined' && module.exports) module.exports = QD;
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+/* QD:CORE END */
+/* QD:CLINIC BEGIN v1.0.0 */
+/*
+ * Query Clinic: the practice database and the graded SQL course. Depends on QD:CORE.
+ * The database is generated in the browser from a fixed seed, so it is identical on every device
+ * and nothing has to be downloaded. Prairie Ridge College and everyone in it are fictional.
+ *
+ * Reference answers are not stored. Each check runs the reference SQL and the learner SQL on the
+ * same database and compares the two result sets with QD.compareResults.
+ */
+(function (root) {
+  'use strict';
+  var QD = root.QD || (typeof require === 'function' ? require('./qd-core.js') : null);
+  var C = {};
+  C.VERSION = '1.0.0';
+  C.PROJECT_NAME = 'Query Clinic';
+  C.SEED = 20261123;
+
+  /* ------------------------------------------------------------- generator */
+
+  function rng(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  /* Calendar arithmetic on whole days, with no Date object, so time zones cannot change the data. */
+  function daysFromCivil(y, m, d) {
+    y -= m <= 2 ? 1 : 0;
+    var era = Math.floor(y / 400), yoe = y - era * 400;
+    var doy = Math.floor((153 * (m + (m > 2 ? -3 : 9)) + 2) / 5) + d - 1;
+    var doe = yoe * 365 + Math.floor(yoe / 4) - Math.floor(yoe / 100) + doy;
+    return era * 146097 + doe - 719468;
+  }
+  function civilFromDays(z) {
+    z += 719468;
+    var era = Math.floor(z / 146097), doe = z - era * 146097;
+    var yoe = Math.floor((doe - Math.floor(doe / 1460) + Math.floor(doe / 36524) - Math.floor(doe / 146096)) / 365);
+    var y = yoe + era * 400, doy = doe - (365 * yoe + Math.floor(yoe / 4) - Math.floor(yoe / 100));
+    var mp = Math.floor((5 * doy + 2) / 153), d = doy - Math.floor((153 * mp + 2) / 5) + 1, m = mp + (mp < 10 ? 3 : -9);
+    y += m <= 2 ? 1 : 0;
+    return y + '-' + (m < 10 ? '0' : '') + m + '-' + (d < 10 ? '0' : '') + d;
+  }
+  function iso(s) { var p = s.split('-'); return daysFromCivil(+p[0], +p[1], +p[2]); }
+
+  var FIRST = ('Ada Ben Cora Dev Elena Finn Grace Hugo Iris Jonas Kira Leo Mara Nico Opal Pavel Quinn Rosa Sam Tess ' +
+    'Uma Victor Wren Xavier Yara Zane Amir Bea Cruz Dina Ezra Faye Gus Hana Ivan June Kai Lena Milo Noor').split(' ');
+  var LAST = ('Abbott Baird Calloway Dunmore Eastman Fairchild Garrity Holloway Ingram Jessup Kessler Lindqvist Marlowe ' +
+    'Novak Okafor Pruitt Quarles Renner Sandoval Thackeray Underhill Vance Whitlock Yoder Zamora Ashby Brandt Corwin ' +
+    'Delacroix Easton Farrow Goddard Hartwell Iverson Jarvis Kimball Larkin Mercer Nakamura Oakes Penhale Rourke ' +
+    'Stroud Tolliver Upton Voss Wexler Yates Zeller Bellamy').split(' ');
+
+  var DEPTS = [
+    ['MATH', 'Mathematics'], ['ENGL', 'English'], ['BIOL', 'Biology'], ['HIST', 'History'],
+    ['CSCI', 'Computer Science'], ['BUSN', 'Business'], ['PSYC', 'Psychology'], ['GEOL', 'Geology']
+  ];
+  /* dept index, number, title, credits, difficulty 0..1 (drives the grade spread). The last four are never offered. */
+  var COURSES = [
+    [0, 101, 'Intro to College Algebra', 3, 0.55], [0, 121, 'Calculus I', 4, 0.75], [0, 122, 'Calculus II', 4, 0.8],
+    [0, 205, 'Elementary Statistics', 3, 0.5], [0, 240, 'Linear Algebra', 3, 0.6], [0, 310, 'A Second Introduction to Proofs', 3, 0.7],
+    [1, 101, 'Composition I', 3, 0.3], [1, 102, 'Composition II', 3, 0.3], [1, 210, 'Intro to Literature', 3, 0.25],
+    [1, 230, 'Technical Writing', 3, 0.3], [1, 315, 'American Novel', 3, 0.35], [1, 340, 'Creative Nonfiction', 3, 0.2],
+    [2, 110, 'Introduction to Biology', 4, 0.5], [2, 111, 'Biology Lab', 1, 0.15], [2, 220, 'Microbiology', 4, 0.65],
+    [2, 230, 'Human Anatomy', 4, 0.7], [2, 305, 'Genetics', 3, 0.7], [2, 330, 'Ecology', 3, 0.4],
+    [3, 101, 'World Civilizations I', 3, 0.35], [3, 102, 'World Civilizations II', 3, 0.35], [3, 210, 'Kansas and the Plains', 3, 0.25],
+    [3, 225, 'Intro to Public History', 3, 0.2], [3, 310, 'The Roman Republic', 3, 0.45], [3, 350, 'Research Seminar', 2, 0.3],
+    [4, 105, 'Intro to Programming', 3, 0.55], [4, 150, 'Data and Spreadsheets', 2, 0.3], [4, 210, 'Data Structures', 4, 0.75],
+    [4, 240, 'Databases and SQL', 3, 0.5], [4, 310, 'Algorithms', 3, 0.8], [4, 330, 'Web Development', 3, 0.4],
+    [5, 101, 'Introduction to Business', 3, 0.25], [5, 210, 'Financial Accounting', 3, 0.6], [5, 220, 'Managerial Accounting', 3, 0.6],
+    [5, 250, 'Principles of Marketing', 3, 0.3], [5, 310, 'Business Analytics', 3, 0.5], [5, 340, 'Operations Management', 3, 0.45],
+    [6, 101, 'General Psychology', 3, 0.3], [6, 210, 'Lifespan Development', 3, 0.3], [6, 240, 'Research Methods', 4, 0.55],
+    [6, 310, 'Cognitive Psychology', 3, 0.45], [7, 101, 'Physical Geology', 4, 0.45], [7, 235, 'Meteorology', 3, 0.3],
+    [7, 335, 'Severe and Extreme Weather', 3, 0.3], [7, 102, 'Geology Lab', 1, 0.15],
+    [0, 399, 'Special Topics in Mathematics', 3, 0.5], [4, 399, 'Special Topics in Computing', 3, 0.5],
+    [5, 395, 'Internship in Business', 2, 0.2], [7, 390, 'Field Camp', 4, 0.4]
+  ];
+  var CAMPUSES = [['Main', 'Prairie Ridge', 1964], ['Riverbend', 'Riverbend', 1988], ['Northgate', 'Northgate', 2003], ['Cedar Hollow', 'Cedar Hollow', 2015]];
+  var TERMS = [
+    ['2025 Spring', '2025-01-13', '2025-05-09', 68], ['2025 Summer', '2025-06-02', '2025-07-25', 24], ['2025 Fall', '2025-08-18', '2025-12-12', 72],
+    ['2026 Spring', '2026-01-12', '2026-05-08', 70], ['2026 Summer', '2026-06-01', '2026-07-24', 24], ['2026 Fall', '2026-08-17', '2026-12-11', 74]
+  ];
+  /* rooms per campus as [name, capacity]; capacities include the exact boundary values the exercises test */
+  var ROOMS = [
+    [['Hall 101', 60], ['Hall 102', 45], ['Hall 210', 40], ['Hall 215', 30], ['Lab A', 24], ['Lab B', 20], ['Seminar 1', 15], ['Seminar 2', 12]],
+    [['River 100', 48], ['River 110', 36], ['River 120', 30], ['River 201', 28], ['River Lab', 20], ['River Seminar', 16]],
+    [['North 1', 40], ['North 2', 35], ['North 3', 30], ['North 4', 22], ['North Lab', 18], ['North Seminar', 14]],
+    [['Cedar 10', 32], ['Cedar 20', 26], ['Cedar Lab', 19], ['Cedar Seminar', 12]]
+  ];
+  var WO_CATS = ['Electrical', 'HVAC', 'Plumbing', 'Custodial', 'IT', 'Furniture'];
+  var WO_PRI = ['Low', 'Normal', 'Normal', 'Normal', 'High', 'High', 'Urgent'];
+
+  /**
+   * Build the practice tables inside a project. opts.declareKeys (default true) adds PRIMARY KEY and
+   * REFERENCES clauses. Pass false to get bare tables, which makes a good demonstration file for Key Finder.
+   * Throws if any of the practice tables already exists.
+   */
+  C.seed = function (project, opts) {
+    var o = opts || {}, declare = o.declareKeys !== false, r = rng(C.SEED), db = project.db;
+    function ri(lo, hi) { return lo + Math.floor(r() * (hi - lo + 1)); }
+    function pick(arr) { return arr[Math.floor(r() * arr.length)]; }
+    function pk(col) { return col + ' INTEGER' + (declare ? ' PRIMARY KEY' : ''); }
+    function fk(col, ref) { return col + ' INTEGER' + (declare ? ' REFERENCES ' + ref : ''); }
+    C.TABLES.forEach(function (t) { if (project.hasTable(t)) throw new Error('The practice table ' + t + ' already exists in this project.'); });
+
+    var ddl = [
+      'CREATE TABLE campuses (' + pk('campus_id') + ', name TEXT, city TEXT, opened_year INTEGER)',
+      'CREATE TABLE departments (' + pk('dept_id') + ', code TEXT, name TEXT)',
+      'CREATE TABLE instructors (' + pk('instructor_id') + ', first_name TEXT, last_name TEXT, ' + fk('dept_id', 'departments(dept_id)') +
+        ', hire_date TEXT, salary REAL, ' + fk('mentor_id', 'instructors(instructor_id)') + ')',
+      'CREATE TABLE courses (' + pk('course_id') + ', ' + fk('dept_id', 'departments(dept_id)') + ', number INTEGER, title TEXT, credits INTEGER)',
+      'CREATE TABLE terms (' + pk('term_id') + ', name TEXT, start_date TEXT, end_date TEXT)',
+      'CREATE TABLE rooms (' + pk('room_id') + ', ' + fk('campus_id', 'campuses(campus_id)') + ', name TEXT, capacity INTEGER)',
+      'CREATE TABLE sections (' + pk('section_id') + ', ' + fk('course_id', 'courses(course_id)') + ', ' + fk('term_id', 'terms(term_id)') + ', ' +
+        fk('instructor_id', 'instructors(instructor_id)') + ', ' + fk('room_id', 'rooms(room_id)') + ', capacity INTEGER, modality TEXT)',
+      'CREATE TABLE students (' + pk('student_id') + ', first_name TEXT, last_name TEXT, email TEXT, ' + fk('home_campus_id', 'campuses(campus_id)') + ', ' +
+        fk('major_dept_id', 'departments(dept_id)') + ', enrolled_date TEXT, birth_date TEXT)',
+      'CREATE TABLE enrollments (' + pk('enrollment_id') + ', ' + fk('student_id', 'students(student_id)') + ', ' + fk('section_id', 'sections(section_id)') +
+        ', enrolled_on TEXT, status TEXT, grade TEXT, grade_points REAL)',
+      'CREATE TABLE work_orders (' + pk('work_order_id') + ', ' + fk('campus_id', 'campuses(campus_id)') + ', ' + fk('room_id', 'rooms(room_id)') +
+        ', category TEXT, priority TEXT, opened_on TEXT, closed_on TEXT, cost REAL)'
+    ];
+    function insertAll(table, rows) {
+      if (!rows.length) return;
+      var st = db.prepare('INSERT INTO ' + table + ' VALUES (' + rows[0].map(function () { return '?'; }).join(',') + ')');
+      try { rows.forEach(function (row) { st.run(row); }); } finally { st.free(); }
+    }
+
+    var i, j, rows;
+    db.run('BEGIN');
+    try {
+      ddl.forEach(function (d) { db.run(d); });
+
+      insertAll('campuses', CAMPUSES.map(function (c, k) { return [k + 1, c[0], c[1], c[2]]; }));
+      insertAll('departments', DEPTS.map(function (d, k) { return [k + 1, d[0], d[1]]; }));
+      insertAll('terms', TERMS.map(function (t, k) { return [k + 1, t[0], t[1], t[2]]; }));
+
+      var rooms = [], roomsByCampus = [[], [], [], []];
+      ROOMS.forEach(function (list, c) {
+        list.forEach(function (rm) { var id = rooms.length + 1; rooms.push([id, c + 1, rm[0], rm[1]]); roomsByCampus[c].push(id); });
+      });
+      insertAll('rooms', rooms);
+
+      /* instructors: 36, four per department plus four new hires (33 to 36) who have not taught yet */
+      var instructors = [], byDept = [[], [], [], [], [], [], [], []], usedNames = {};
+      function personName() {
+        var f, l, key;
+        do { f = pick(FIRST); l = pick(LAST); key = f + ' ' + l; } while (usedNames[key]);
+        usedNames[key] = true; return [f, l];
+      }
+      for (i = 1; i <= 36; i += 1) {
+        var d = i <= 32 ? (i - 1) % 8 : [0, 4, 5, 7][i - 33];
+        var nm = personName();
+        var hire = i <= 32 ? civilFromDays(iso('2004-08-15') + ri(0, 7300)) : civilFromDays(iso('2026-08-01') + ri(0, 9));
+        var salary = 52000 + ri(0, 380) * 100 + i * 7 + (i <= 32 ? Math.floor((iso('2026-01-01') - iso(hire)) / 365) * 900 : 0);
+        var mentor = null;
+        if (byDept[d].length && r() < 0.7) mentor = byDept[d][Math.floor(r() * byDept[d].length)];
+        instructors.push([i, nm[0], nm[1], d + 1, hire, salary + 0.0, mentor]);
+        byDept[d].push(i);
+      }
+      insertAll('instructors', instructors);
+      var teaching = byDept.map(function (list) { return list.filter(function (id) { return id <= 32; }); });
+
+      insertAll('courses', COURSES.map(function (c, k) { return [k + 1, c[0] + 1, c[1], c[2], c[3]]; }));
+      var OFFERED = 44;
+
+      /* students: 400. The last ten never enroll. */
+      var students = [];
+      for (i = 1; i <= 400; i += 1) {
+        var f = pick(FIRST), l = pick(LAST);
+        var campus = [1, 1, 1, 1, 2, 2, 2, 3, 3, 4][ri(0, 9)];
+        var major = r() < 0.12 ? null : ri(1, 8);
+        students.push([i, f, l, (f + '.' + l + i + '@prairieridge.example').toLowerCase(), campus, major,
+          civilFromDays(iso('2023-08-01') + ri(0, 1100)), civilFromDays(iso('1985-01-01') + ri(0, 8400))]);
+      }
+      insertAll('students', students);
+
+      /* sections */
+      var sections = [], sid = 0;
+      TERMS.forEach(function (t, tk) {
+        for (j = 0; j < t[3]; j += 1) {
+          sid += 1;
+          var ck = (j < OFFERED && t[3] > 40) ? j : ri(0, OFFERED - 1);
+          var dept = COURSES[ck][0];
+          var m = r(), modality = m < 0.24 ? 'Online' : (m < 0.36 ? 'Hybrid' : 'In person');
+          var room = null, cap;
+          if (modality === 'Online') cap = [30, 35, 40][ri(0, 2)];
+          else {
+            var cIdx = [0, 0, 0, 1, 1, 2, 2, 3][ri(0, 7)];
+            room = pick(roomsByCampus[cIdx]);
+            cap = rooms[room - 1][3];
+            if (COURSES[ck][3] === 1) cap = Math.min(cap, 20);
+          }
+          var inst = pick(teaching[dept]);
+          if (tk === 5 && r() < 0.08) inst = null;
+          sections.push([sid, ck + 1, tk + 1, inst, room, cap, modality]);
+        }
+      });
+      insertAll('sections', sections);
+
+      /* enrollments */
+      var enrollments = [], eid = 0, LETTERS = ['A', 'B', 'C', 'D', 'F'];
+      sections.forEach(function (s) {
+        var cap = s[5], tk = s[2] - 1, diff = COURSES[s[1] - 1][4];
+        var n = Math.max(3, Math.round(cap * (0.45 + r() * 0.7)));
+        var chosen = {}, count = 0, start = iso(TERMS[tk][1]);
+        while (count < n) {
+          var st = ri(1, 390);
+          if (chosen[st]) continue;
+          chosen[st] = true; count += 1; eid += 1;
+          var withdrawn = r() < 0.05 + diff * 0.09;
+          var status = withdrawn ? 'Withdrawn' : (tk === 5 ? 'Enrolled' : 'Completed');
+          var grade = null, pts = null;
+          if (status === 'Completed') {
+            var x = r() + (diff - 0.45) * 0.55, gi = x < 0.30 ? 0 : (x < 0.62 ? 1 : (x < 0.82 ? 2 : (x < 0.92 ? 3 : 4)));
+            grade = LETTERS[gi]; pts = 4 - gi + 0.0;
+          }
+          enrollments.push([eid, st, s[0], civilFromDays(start - ri(5, 60)), status, grade, pts]);
+        }
+      });
+      insertAll('enrollments', enrollments);
+
+      /* work orders: 240. Cedar Hollow (campus 4) has none open. */
+      var orders = [], base = iso('2025-01-06'), span = iso('2026-11-10') - base;
+      for (i = 1; i <= 240; i += 1) {
+        var wc = [0, 0, 0, 0, 1, 1, 1, 2, 2, 3][ri(0, 9)];
+        var wroom = r() < 0.3 ? null : pick(roomsByCampus[wc]);
+        var opened = base + ri(0, span);
+        var isOpen = wc !== 3 && r() < 0.16;
+        var closed = isOpen ? null : civilFromDays(opened + ri(0, 30));
+        var cost = (isOpen || r() < 0.1) ? null : ri(2500, 240000) / 100;
+        orders.push([i, wc + 1, wroom, pick(WO_CATS), pick(WO_PRI), civilFromDays(opened), closed, cost]);
+      }
+      insertAll('work_orders', orders);
+      db.run('COMMIT');
+    } catch (e) {
+      try { db.run('ROLLBACK'); } catch (e2) { /* ignore */ }
+      throw e;
+    }
+    project.setMeta('clinic_seed', String(C.SEED));
+    project.setMeta('clinic_version', C.VERSION);
+    project._touch('schema');
+    return C.TABLES.slice();
+  };
+  C.TABLES = ['campuses', 'departments', 'instructors', 'courses', 'terms', 'rooms', 'sections', 'students', 'enrollments', 'work_orders'];
+
+  /** Create a ready to use Query Clinic project. */
+  C.createProject = function () {
+    var p = QD.create(C.PROJECT_NAME);
+    C.seed(p);
+    return p;
+  };
+
+  /* -------------------------------------------------------------- the course */
+
+  C.UNITS = [
+    { id: 1, title: 'Select and filter', blurb: 'Choose columns with SELECT and rows with WHERE.' },
+    { id: 2, title: 'Sort and limit', blurb: 'Put rows in order and keep only the first few.' },
+    { id: 3, title: 'Empty values and expressions', blurb: 'NULL, COALESCE, CASE and building new columns.' },
+    { id: 4, title: 'Summaries', blurb: 'COUNT, SUM, AVG, MIN and MAX over a whole table.' },
+    { id: 5, title: 'Group by', blurb: 'One summary row per group, and HAVING to filter groups.' },
+    { id: 6, title: 'Joins', blurb: 'Combine tables through their keys.' },
+    { id: 7, title: 'Outer joins', blurb: 'Keep rows that have no match, and find what is missing.' },
+    { id: 8, title: 'Subqueries and CTEs', blurb: 'Use one query inside another.' },
+    { id: 9, title: 'Window functions', blurb: 'Rank, running totals and comparisons across rows.' },
+    { id: 10, title: 'Capstone', blurb: 'Two real reporting questions that combine everything.' }
+  ];
+
+  /*
+   * Each exercise:
+   *   id, unit, title, prompt, ordered (row order is graded), solution,
+   *   alt (a second correct answer, used by the tests to prove the checker accepts other routes),
+   *   wrong (a common mistake, used by the tests to prove the checker rejects it),
+   *   hint, concept, tsql (how SQL Server differs, when it does)
+   */
+  C.EXERCISES = [
+    { id: '1.1', unit: 1, title: 'Everything in a table', ordered: false,
+      prompt: 'Show every column of every campus.',
+      solution: 'SELECT * FROM campuses',
+      alt: 'SELECT campus_id, name, city, opened_year FROM campuses',
+      wrong: 'SELECT name, city FROM campuses',
+      hint: 'The star means every column.',
+      concept: 'SELECT chooses columns and FROM names the table. SELECT * returns every column in table order.' },
+    { id: '1.2', unit: 1, title: 'Chosen columns', ordered: false,
+      prompt: 'List the first name, last name and email of every student, with the columns in that order.',
+      solution: 'SELECT first_name, last_name, email FROM students',
+      alt: 'SELECT s.first_name AS first, s.last_name AS last, s.email FROM students AS s',
+      wrong: 'SELECT last_name, first_name, email FROM students',
+      hint: 'List the column names after SELECT, separated by commas, in the order asked for.',
+      concept: 'Columns come back in the order you list them. Names given with AS are labels only.' },
+    { id: '1.3', unit: 1, title: 'Filter on a number', ordered: false,
+      prompt: 'Which courses are worth 4 credits? Show the title and the credits.',
+      solution: 'SELECT title, credits FROM courses WHERE credits = 4',
+      alt: 'SELECT title, credits FROM courses WHERE credits > 3',
+      wrong: 'SELECT title, credits FROM courses WHERE credits >= 3',
+      hint: 'WHERE comes after FROM and keeps only rows where the test is true.',
+      concept: 'WHERE filters rows before anything else happens to them.' },
+    { id: '1.4', unit: 1, title: 'Two conditions', ordered: false,
+      prompt: 'Find the rooms at campus 2 that seat at least 30. Show the room name and capacity.',
+      solution: 'SELECT name, capacity FROM rooms WHERE campus_id = 2 AND capacity >= 30',
+      alt: 'SELECT name, capacity FROM rooms WHERE capacity > 29 AND campus_id IN (2)',
+      wrong: 'SELECT name, capacity FROM rooms WHERE campus_id = 2 AND capacity > 30',
+      hint: 'Join two tests with AND. At least 30 includes 30 itself.',
+      concept: 'AND requires both tests. Watch the boundary: at least means >=, more than means >.' },
+    { id: '1.5', unit: 1, title: 'Match the start of text', ordered: false,
+      prompt: 'Show the number and title of every course whose title starts with Intro.',
+      solution: "SELECT number, title FROM courses WHERE title LIKE 'Intro%'",
+      alt: "SELECT number, title FROM courses WHERE substr(title, 1, 5) = 'Intro'",
+      wrong: "SELECT number, title FROM courses WHERE title LIKE '%Intro%'",
+      hint: 'In LIKE, the percent sign stands for any run of characters. Put it only where anything may follow.',
+      concept: 'LIKE matches patterns. Text values go in single quotes.',
+      tsql: 'SQL Server uses LEFT(title, 5) or SUBSTRING(title, 1, 5) instead of substr. Whether LIKE ignores case depends on the collation there; in SQLite it ignores case for plain letters.' },
+
+    { id: '2.1', unit: 2, title: 'Top five', ordered: true,
+      prompt: 'Show the five highest paid instructors: last name and salary, highest salary first.',
+      solution: 'SELECT last_name, salary FROM instructors ORDER BY salary DESC LIMIT 5',
+      alt: 'SELECT last_name, salary FROM (SELECT last_name, salary, row_number() OVER (ORDER BY salary DESC) AS rn FROM instructors) WHERE rn <= 5 ORDER BY rn',
+      wrong: 'SELECT last_name, salary FROM instructors ORDER BY salary LIMIT 5',
+      hint: 'ORDER BY sorts, DESC reverses, and LIMIT keeps the first rows.',
+      concept: 'ORDER BY runs near the end, and LIMIT cuts the sorted list.',
+      tsql: 'SQL Server has no LIMIT. Write SELECT TOP 5 last_name, salary FROM instructors ORDER BY salary DESC, or use OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY after ORDER BY.' },
+    { id: '2.2', unit: 2, title: 'Each value once', ordered: true,
+      prompt: 'List each section modality once, in alphabetical order.',
+      solution: 'SELECT DISTINCT modality FROM sections ORDER BY modality',
+      alt: 'SELECT modality FROM sections GROUP BY modality ORDER BY 1',
+      wrong: 'SELECT modality FROM sections ORDER BY modality',
+      hint: 'DISTINCT goes right after SELECT.',
+      concept: 'DISTINCT removes duplicate rows from the result.' },
+    { id: '2.3', unit: 2, title: 'Sort on several columns', ordered: true,
+      prompt: 'Sort students by last name, then first name, then student_id, and show the first ten: last_name, first_name, student_id.',
+      solution: 'SELECT last_name, first_name, student_id FROM students ORDER BY last_name, first_name, student_id LIMIT 10',
+      alt: 'SELECT last_name, first_name, student_id FROM students ORDER BY 1, 2, 3 LIMIT 10',
+      wrong: 'SELECT last_name, first_name, student_id FROM students ORDER BY first_name, last_name, student_id LIMIT 10',
+      hint: 'List the sort columns in order of importance.',
+      concept: 'Later sort columns only break ties left by earlier ones. A final unique column makes the order fully repeatable.' },
+
+    { id: '3.1', unit: 3, title: 'Find the empty ones', ordered: false,
+      prompt: 'Which sections have no instructor assigned? Show section_id and term_id.',
+      solution: 'SELECT section_id, term_id FROM sections WHERE instructor_id IS NULL',
+      alt: 'SELECT section_id, term_id FROM sections WHERE coalesce(instructor_id, -1) = -1',
+      wrong: 'SELECT section_id, term_id FROM sections WHERE instructor_id = NULL',
+      hint: 'NULL is never equal to anything, not even NULL. Use IS NULL.',
+      concept: 'NULL means unknown. Comparisons with NULL are neither true nor false, so = NULL matches nothing.' },
+    { id: '3.2', unit: 3, title: 'Replace an empty value', ordered: false,
+      prompt: 'List every work order with its cost, showing 0 when the cost is missing: work_order_id and the cost.',
+      solution: 'SELECT work_order_id, coalesce(cost, 0) FROM work_orders',
+      alt: 'SELECT work_order_id, CASE WHEN cost IS NULL THEN 0 ELSE cost END FROM work_orders',
+      wrong: 'SELECT work_order_id, cost FROM work_orders',
+      hint: 'COALESCE returns its first argument that is not NULL.',
+      concept: 'COALESCE supplies a stand in for NULL.',
+      tsql: 'COALESCE works the same in SQL Server. ISNULL(cost, 0) is the older SQL Server only form.' },
+    { id: '3.3', unit: 3, title: 'Label by range', ordered: false,
+      prompt: 'Show each room name with a size label: Small for under 20 seats, Medium for 20 to 39, and Large for 40 or more.',
+      solution: "SELECT name, CASE WHEN capacity < 20 THEN 'Small' WHEN capacity < 40 THEN 'Medium' ELSE 'Large' END FROM rooms",
+      alt: "SELECT name, CASE WHEN capacity >= 40 THEN 'Large' WHEN capacity >= 20 THEN 'Medium' ELSE 'Small' END AS size FROM rooms",
+      wrong: "SELECT name, CASE WHEN capacity <= 20 THEN 'Small' WHEN capacity <= 40 THEN 'Medium' ELSE 'Large' END FROM rooms",
+      hint: 'CASE checks its WHEN tests from the top and stops at the first true one.',
+      concept: 'CASE builds a new column from conditions. Order matters because the first match wins.' },
+    { id: '3.4', unit: 3, title: 'Build text and pull a year', ordered: false,
+      prompt: 'For each instructor show the full name as one column (first name, a space, last name) and the year they were hired.',
+      solution: "SELECT first_name || ' ' || last_name, strftime('%Y', hire_date) FROM instructors",
+      alt: "SELECT printf('%s %s', first_name, last_name) AS full_name, CAST(substr(hire_date, 1, 4) AS INTEGER) AS hire_year FROM instructors",
+      wrong: "SELECT last_name || ' ' || first_name, strftime('%Y', hire_date) FROM instructors",
+      hint: 'Two vertical bars glue text together. strftime pulls parts out of a date.',
+      concept: 'Expressions make new columns from existing ones.',
+      tsql: "SQL Server joins text with + or CONCAT(first_name, ' ', last_name), and gets the year with YEAR(hire_date)." },
+
+    { id: '4.1', unit: 4, title: 'Count rows', ordered: false,
+      prompt: 'How many students are there?',
+      solution: 'SELECT count(*) FROM students',
+      alt: 'SELECT count(student_id) AS n FROM students',
+      wrong: 'SELECT count(major_dept_id) FROM students',
+      hint: 'count(*) counts rows.',
+      concept: 'An aggregate turns many rows into one value.' },
+    { id: '4.2', unit: 4, title: 'Lowest, highest, average', ordered: false,
+      prompt: 'Show the lowest, the highest and the average instructor salary, in that order, with the average rounded to 2 places.',
+      solution: 'SELECT min(salary), max(salary), round(avg(salary), 2) FROM instructors',
+      alt: 'SELECT min(salary), max(salary), round(sum(salary) / count(*), 2) FROM instructors',
+      wrong: 'SELECT max(salary), min(salary), round(avg(salary), 2) FROM instructors',
+      hint: 'Several aggregates can sit side by side in one SELECT.',
+      concept: 'MIN, MAX and AVG each scan the whole table and return one value.' },
+    { id: '4.3', unit: 4, title: 'Count rows and count values', ordered: false,
+      prompt: 'In one row show two numbers: how many enrollments exist, and how many of them have a grade.',
+      solution: 'SELECT count(*), count(grade) FROM enrollments',
+      alt: 'SELECT count(*), sum(grade IS NOT NULL) FROM enrollments',
+      wrong: 'SELECT count(*), count(*) FROM enrollments',
+      hint: 'count(column) skips rows where that column is NULL.',
+      concept: 'count(*) counts rows. count(column) counts the rows where the column has a value.',
+      tsql: 'SQL Server cannot sum a true or false test directly. Write SUM(CASE WHEN grade IS NOT NULL THEN 1 ELSE 0 END) or simply COUNT(grade).' },
+    { id: '4.4', unit: 4, title: 'Count different values', ordered: false,
+      prompt: 'How many different students have at least one enrollment?',
+      solution: 'SELECT count(DISTINCT student_id) FROM enrollments',
+      alt: 'SELECT count(*) FROM (SELECT student_id FROM enrollments GROUP BY student_id)',
+      wrong: 'SELECT count(student_id) FROM enrollments',
+      hint: 'Put DISTINCT inside the count.',
+      concept: 'count(DISTINCT x) counts each different value once.' },
+
+    { id: '5.1', unit: 5, title: 'Count per group', ordered: false,
+      prompt: 'How many students call each campus home? Show home_campus_id and the number of students.',
+      solution: 'SELECT home_campus_id, count(*) FROM students GROUP BY home_campus_id',
+      alt: 'SELECT c.campus_id, (SELECT count(*) FROM students s WHERE s.home_campus_id = c.campus_id) FROM campuses c',
+      wrong: 'SELECT home_campus_id, count(major_dept_id) FROM students GROUP BY home_campus_id',
+      hint: 'GROUP BY makes one row per value of the grouping column.',
+      concept: 'GROUP BY splits the rows into groups, and each aggregate is worked out per group.' },
+    { id: '5.2', unit: 5, title: 'Count per status', ordered: false,
+      prompt: 'How many enrollments are there for each status? Show the status and the count.',
+      solution: 'SELECT status, count(*) FROM enrollments GROUP BY status',
+      alt: 'SELECT status, sum(1) AS n FROM enrollments GROUP BY 1',
+      wrong: 'SELECT status, count(grade) FROM enrollments GROUP BY status',
+      hint: 'Group on status.',
+      concept: 'Every column in SELECT is either grouped on or inside an aggregate.' },
+    { id: '5.3', unit: 5, title: 'Filter the groups', ordered: false,
+      prompt: 'For each section with at least 10 graded enrollments, show section_id and the average grade_points rounded to 2 places.',
+      solution: 'SELECT section_id, round(avg(grade_points), 2) FROM enrollments WHERE grade_points IS NOT NULL GROUP BY section_id HAVING count(*) >= 10',
+      alt: 'SELECT section_id, round(avg(grade_points), 2) FROM enrollments GROUP BY section_id HAVING count(grade_points) >= 10',
+      wrong: 'SELECT section_id, round(avg(grade_points), 2) FROM enrollments GROUP BY section_id HAVING count(*) >= 10',
+      hint: 'WHERE filters rows before grouping. HAVING filters groups after.',
+      concept: 'HAVING is WHERE for groups. Be clear about what is being counted: rows, or rows with a value.' },
+    { id: '5.4', unit: 5, title: 'Totals per category', ordered: true,
+      prompt: 'For closed work orders that have a cost, show each category with its total cost and average cost, both rounded to 2 places, biggest total first.',
+      solution: 'SELECT category, round(sum(cost), 2), round(avg(cost), 2) FROM work_orders WHERE closed_on IS NOT NULL AND cost IS NOT NULL GROUP BY category ORDER BY sum(cost) DESC',
+      alt: 'SELECT category, round(sum(cost), 2) AS total, round(sum(cost) / count(cost), 2) AS average FROM work_orders WHERE cost IS NOT NULL AND closed_on IS NOT NULL GROUP BY category ORDER BY 2 DESC',
+      wrong: 'SELECT category, round(sum(cost), 2), round(avg(coalesce(cost, 0)), 2) FROM work_orders WHERE closed_on IS NOT NULL GROUP BY category ORDER BY sum(cost) DESC',
+      hint: 'Filter first, then group, then sort on the total.',
+      concept: 'AVG ignores NULL. Turning NULL into 0 first changes the average, because the zeros are then counted.' },
+    { id: '5.5', unit: 5, title: 'Group by a piece of a date', ordered: true,
+      prompt: 'How many work orders were opened in each month? Show the month as YYYY-MM and the count, earliest month first.',
+      solution: "SELECT strftime('%Y-%m', opened_on), count(*) FROM work_orders GROUP BY 1 ORDER BY 1",
+      alt: 'SELECT substr(opened_on, 1, 7) AS month, count(*) FROM work_orders GROUP BY month ORDER BY month',
+      wrong: "SELECT strftime('%m', opened_on), count(*) FROM work_orders GROUP BY 1 ORDER BY 1",
+      hint: 'You can group on an expression. Keep the year in it, or January of two years will merge.',
+      concept: 'Any expression can be a grouping key.',
+      tsql: "SQL Server writes this as FORMAT(opened_on, 'yyyy-MM'), or groups on YEAR(opened_on), MONTH(opened_on). It also does not allow GROUP BY 1: repeat the expression instead." },
+
+    { id: '6.1', unit: 6, title: 'Two tables', ordered: false,
+      prompt: 'For sections offered in term 6, show section_id and the course title.',
+      solution: 'SELECT s.section_id, c.title FROM sections s JOIN courses c ON c.course_id = s.course_id WHERE s.term_id = 6',
+      alt: 'SELECT section_id, (SELECT title FROM courses c WHERE c.course_id = s.course_id) FROM sections s WHERE term_id = 6',
+      wrong: 'SELECT s.section_id, c.title FROM sections s JOIN courses c ON c.course_id = s.course_id',
+      hint: 'JOIN the two tables ON the column they share, then filter.',
+      concept: 'A join pairs each row with its match in another table through a key.' },
+    { id: '6.2', unit: 6, title: 'Four tables', ordered: false,
+      prompt: 'Show everything student 17 has enrolled in: the course title, the term name and the grade.',
+      solution: 'SELECT c.title, t.name, e.grade FROM enrollments e JOIN sections s ON s.section_id = e.section_id JOIN courses c ON c.course_id = s.course_id JOIN terms t ON t.term_id = s.term_id WHERE e.student_id = 17',
+      alt: 'SELECT c.title, t.name, e.grade FROM terms t JOIN sections s USING (term_id) JOIN courses c USING (course_id) JOIN enrollments e USING (section_id) WHERE e.student_id = 17',
+      wrong: 'SELECT c.title, t.name, e.grade FROM enrollments e JOIN sections s ON s.section_id = e.section_id JOIN courses c ON c.course_id = s.course_id JOIN terms t ON t.term_id = s.term_id WHERE e.student_id = 17 AND e.grade IS NOT NULL',
+      hint: 'Walk the keys: enrollments to sections, then sections to courses and to terms.',
+      concept: 'Joins chain. Each new table needs its own ON condition.',
+      tsql: 'SQL Server does not support JOIN ... USING. Write the ON condition out.' },
+    { id: '6.3', unit: 6, title: 'Join, then group', ordered: false,
+      prompt: 'How many sections has each department offered across all terms? Show the department name and the count.',
+      solution: 'SELECT d.name, count(*) FROM departments d JOIN courses c ON c.dept_id = d.dept_id JOIN sections s ON s.course_id = c.course_id GROUP BY d.dept_id, d.name',
+      alt: 'SELECT d.name, (SELECT count(*) FROM sections s WHERE s.course_id IN (SELECT course_id FROM courses c WHERE c.dept_id = d.dept_id)) FROM departments d',
+      wrong: 'SELECT d.name, count(*) FROM departments d JOIN courses c ON c.dept_id = d.dept_id GROUP BY d.dept_id, d.name',
+      hint: 'Sections reach departments through courses.',
+      concept: 'Join first to bring the label and the rows together, then group on the label.' },
+    { id: '6.4', unit: 6, title: 'Each match once', ordered: false,
+      prompt: 'Which instructors teach at least one Online section in term 6? Show last_name and first_name, with each instructor listed once.',
+      solution: "SELECT DISTINCT i.last_name, i.first_name FROM instructors i JOIN sections s ON s.instructor_id = i.instructor_id WHERE s.term_id = 6 AND s.modality = 'Online'",
+      alt: "SELECT last_name, first_name FROM instructors i WHERE EXISTS (SELECT 1 FROM sections s WHERE s.instructor_id = i.instructor_id AND s.term_id = 6 AND s.modality = 'Online')",
+      wrong: "SELECT i.last_name, i.first_name FROM instructors i JOIN sections s ON s.instructor_id = i.instructor_id WHERE s.term_id = 6 AND s.modality = 'Online'",
+      hint: 'A join returns one row per match, so an instructor with two such sections appears twice unless you remove duplicates.',
+      concept: 'Joins multiply rows. DISTINCT or EXISTS answers which ones, rather than how many matches.' },
+    { id: '6.5', unit: 6, title: 'A table joined to itself', ordered: false,
+      prompt: "For each instructor who has a mentor, show the instructor's last name and then the mentor's last name.",
+      solution: 'SELECT i.last_name, m.last_name FROM instructors i JOIN instructors m ON m.instructor_id = i.mentor_id',
+      alt: 'SELECT i.last_name, (SELECT m.last_name FROM instructors m WHERE m.instructor_id = i.mentor_id) FROM instructors i WHERE i.mentor_id IS NOT NULL',
+      wrong: 'SELECT i.last_name, m.last_name FROM instructors i LEFT JOIN instructors m ON m.instructor_id = i.mentor_id',
+      hint: 'Use the same table twice with two different aliases.',
+      concept: 'A self join treats one table as two, which is how a row points at another row of its own kind.' },
+
+    { id: '7.1', unit: 7, title: 'Keep the unmatched', ordered: false,
+      prompt: 'Show every instructor with the number of sections they have ever taught, including instructors who have taught none: instructor_id and the count.',
+      solution: 'SELECT i.instructor_id, count(s.section_id) FROM instructors i LEFT JOIN sections s ON s.instructor_id = i.instructor_id GROUP BY i.instructor_id',
+      alt: 'SELECT instructor_id, (SELECT count(*) FROM sections s WHERE s.instructor_id = i.instructor_id) FROM instructors i',
+      wrong: 'SELECT i.instructor_id, count(*) FROM instructors i LEFT JOIN sections s ON s.instructor_id = i.instructor_id GROUP BY i.instructor_id',
+      hint: 'LEFT JOIN keeps every row of the left table. Count a column from the right table so the empty matches count as zero.',
+      concept: 'An outer join keeps rows with no match and fills the other side with NULL. count(*) would count that filler row as one.' },
+    { id: '7.2', unit: 7, title: 'Find what is missing', ordered: false,
+      prompt: 'Which courses have never been offered as a section? Show the title.',
+      solution: 'SELECT c.title FROM courses c LEFT JOIN sections s ON s.course_id = c.course_id WHERE s.section_id IS NULL',
+      alt: 'SELECT title FROM courses c WHERE NOT EXISTS (SELECT 1 FROM sections s WHERE s.course_id = c.course_id)',
+      wrong: 'SELECT c.title FROM courses c JOIN sections s ON s.course_id = c.course_id WHERE s.section_id IS NULL',
+      hint: 'LEFT JOIN, then keep only the rows where the right side came back empty.',
+      concept: 'This shape is called an anti join. NOT EXISTS says the same thing directly.' },
+    { id: '7.3', unit: 7, title: 'Fill in a missing match', ordered: false,
+      prompt: 'For term 6 sections show section_id and the room name, showing the word Online when the section has no room.',
+      solution: "SELECT s.section_id, coalesce(r.name, 'Online') FROM sections s LEFT JOIN rooms r ON r.room_id = s.room_id WHERE s.term_id = 6",
+      alt: "SELECT s.section_id, CASE WHEN s.room_id IS NULL THEN 'Online' ELSE (SELECT name FROM rooms r WHERE r.room_id = s.room_id) END FROM sections s WHERE s.term_id = 6",
+      wrong: "SELECT s.section_id, coalesce(r.name, 'Online') FROM sections s JOIN rooms r ON r.room_id = s.room_id WHERE s.term_id = 6",
+      hint: 'An inner join would drop the sections with no room.',
+      concept: 'LEFT JOIN plus COALESCE keeps the row and labels the gap.' },
+    { id: '7.4', unit: 7, title: 'A condition in the right place', ordered: false,
+      prompt: 'Show every campus name with its number of open work orders (closed_on is empty), including campuses that have none open.',
+      solution: 'SELECT c.name, count(w.work_order_id) FROM campuses c LEFT JOIN work_orders w ON w.campus_id = c.campus_id AND w.closed_on IS NULL GROUP BY c.campus_id, c.name',
+      alt: 'SELECT name, (SELECT count(*) FROM work_orders w WHERE w.campus_id = c.campus_id AND w.closed_on IS NULL) FROM campuses c',
+      wrong: 'SELECT c.name, count(w.work_order_id) FROM campuses c LEFT JOIN work_orders w ON w.campus_id = c.campus_id WHERE w.closed_on IS NULL GROUP BY c.campus_id, c.name',
+      hint: 'A test on the right hand table belongs in ON. In WHERE it throws away the campuses you meant to keep.',
+      concept: 'With a LEFT JOIN, ON decides what matches and WHERE decides what survives. Filtering the right table in WHERE turns the join back into an inner join.' },
+
+    { id: '8.1', unit: 8, title: 'Compare with a single value', ordered: false,
+      prompt: 'Which instructors are paid more than the average instructor salary? Show last_name and salary.',
+      solution: 'SELECT last_name, salary FROM instructors WHERE salary > (SELECT avg(salary) FROM instructors)',
+      alt: 'WITH a AS (SELECT avg(salary) AS avg_salary FROM instructors) SELECT i.last_name, i.salary FROM instructors i CROSS JOIN a WHERE i.salary > a.avg_salary',
+      wrong: 'SELECT last_name, salary FROM instructors i WHERE salary > (SELECT avg(salary) FROM instructors d WHERE d.dept_id = i.dept_id)',
+      hint: 'A query in parentheses that returns one value can be used like a number.',
+      concept: 'A scalar subquery returns one value. An aggregate cannot go straight into WHERE, but a subquery can.' },
+    { id: '8.2', unit: 8, title: 'Membership in a list', ordered: false,
+      prompt: 'Which students have enrolled in at least one course from the department with code MATH? Show student_id, with each student once.',
+      solution: "SELECT DISTINCT e.student_id FROM enrollments e WHERE e.section_id IN (SELECT s.section_id FROM sections s JOIN courses c ON c.course_id = s.course_id JOIN departments d ON d.dept_id = c.dept_id WHERE d.code = 'MATH')",
+      alt: "SELECT e.student_id FROM enrollments e JOIN sections s ON s.section_id = e.section_id JOIN courses c ON c.course_id = s.course_id JOIN departments d ON d.dept_id = c.dept_id WHERE d.code = 'MATH' GROUP BY e.student_id",
+      wrong: "SELECT e.student_id FROM enrollments e JOIN sections s ON s.section_id = e.section_id JOIN courses c ON c.course_id = s.course_id JOIN departments d ON d.dept_id = c.dept_id WHERE d.code = 'MATH'",
+      hint: 'Build the list of MATH sections first, then ask which enrollments are IN it.',
+      concept: 'IN tests membership in the result of another query.' },
+    { id: '8.3', unit: 8, title: 'Name a step with a CTE', ordered: false,
+      prompt: 'Count the enrollments in each section that are not Withdrawn, then list the sections where that count is greater than the capacity: section_id, capacity and the count.',
+      solution: "WITH filled AS (SELECT section_id, count(*) AS n FROM enrollments WHERE status <> 'Withdrawn' GROUP BY section_id) SELECT s.section_id, s.capacity, f.n FROM sections s JOIN filled f ON f.section_id = s.section_id WHERE f.n > s.capacity",
+      alt: "SELECT s.section_id, s.capacity, count(*) FROM sections s JOIN enrollments e ON e.section_id = s.section_id WHERE e.status IN ('Enrolled', 'Completed') GROUP BY s.section_id, s.capacity HAVING count(*) > s.capacity",
+      wrong: 'WITH filled AS (SELECT section_id, count(*) AS n FROM enrollments GROUP BY section_id) SELECT s.section_id, s.capacity, f.n FROM sections s JOIN filled f ON f.section_id = s.section_id WHERE f.n > s.capacity',
+      hint: 'WITH name AS (query) gives a query a name you can join to like a table.',
+      concept: 'A CTE breaks a problem into named steps that read top to bottom.' },
+    { id: '8.4', unit: 8, title: 'The top row in each group', ordered: false,
+      prompt: 'Who is the highest paid instructor in each department? Show the department code, last_name and salary.',
+      solution: 'SELECT d.code, i.last_name, i.salary FROM instructors i JOIN departments d ON d.dept_id = i.dept_id WHERE i.salary = (SELECT max(x.salary) FROM instructors x WHERE x.dept_id = i.dept_id)',
+      alt: 'SELECT code, last_name, salary FROM (SELECT d.code, i.last_name, i.salary, row_number() OVER (PARTITION BY i.dept_id ORDER BY i.salary DESC) AS rn FROM instructors i JOIN departments d ON d.dept_id = i.dept_id) WHERE rn = 1',
+      wrong: 'SELECT d.code, i.last_name, i.salary FROM instructors i JOIN departments d ON d.dept_id = i.dept_id WHERE i.salary = (SELECT min(x.salary) FROM instructors x WHERE x.dept_id = i.dept_id)',
+      hint: 'A subquery can refer to the row outside it. Ask for the top salary in this row\'s department.',
+      concept: 'A correlated subquery runs once per outer row. Grouping alone cannot return the name that goes with the maximum.' },
+
+    { id: '9.1', unit: 9, title: 'Rank inside groups', ordered: false,
+      prompt: 'Rank instructors by salary inside each department, highest first. Show dept_id, last_name, salary and the rank.',
+      solution: 'SELECT dept_id, last_name, salary, rank() OVER (PARTITION BY dept_id ORDER BY salary DESC) FROM instructors',
+      alt: 'SELECT i.dept_id, i.last_name, i.salary, 1 + (SELECT count(*) FROM instructors x WHERE x.dept_id = i.dept_id AND x.salary > i.salary) FROM instructors i',
+      wrong: 'SELECT dept_id, last_name, salary, rank() OVER (ORDER BY salary DESC) FROM instructors',
+      hint: 'OVER (PARTITION BY ... ORDER BY ...) restarts the ranking for each department.',
+      concept: 'A window function adds a value to each row without collapsing rows the way GROUP BY does.' },
+    { id: '9.2', unit: 9, title: 'Running total', ordered: true,
+      prompt: 'For campus 1, take the work orders that have a cost, in order of opened_on and then work_order_id. Show work_order_id, cost and the running total of cost.',
+      solution: 'SELECT work_order_id, cost, sum(cost) OVER (ORDER BY opened_on, work_order_id) FROM work_orders WHERE campus_id = 1 AND cost IS NOT NULL ORDER BY opened_on, work_order_id',
+      alt: 'SELECT w.work_order_id, w.cost, (SELECT sum(x.cost) FROM work_orders x WHERE x.campus_id = 1 AND x.cost IS NOT NULL AND (x.opened_on < w.opened_on OR (x.opened_on = w.opened_on AND x.work_order_id <= w.work_order_id))) FROM work_orders w WHERE w.campus_id = 1 AND w.cost IS NOT NULL ORDER BY w.opened_on, w.work_order_id',
+      wrong: 'SELECT work_order_id, cost, sum(cost) OVER () FROM work_orders WHERE campus_id = 1 AND cost IS NOT NULL ORDER BY opened_on, work_order_id',
+      hint: 'SUM with an ORDER BY inside OVER adds up everything so far.',
+      concept: 'An ordered window makes aggregates cumulative. Include a unique column in the window order so ties cannot be added together.' },
+    { id: '9.3', unit: 9, title: 'Top three per group', ordered: false,
+      prompt: 'A student GPA is the average grade_points over their graded enrollments. Among students with at least 8 graded enrollments, show the top 3 by GPA at each home campus, breaking ties by lower student_id: home_campus_id, student_id and the GPA rounded to 2 places.',
+      solution: 'WITH g AS (SELECT s.home_campus_id, s.student_id, avg(e.grade_points) AS gpa FROM students s JOIN enrollments e ON e.student_id = s.student_id WHERE e.grade_points IS NOT NULL GROUP BY s.student_id, s.home_campus_id HAVING count(*) >= 8), r AS (SELECT g.*, row_number() OVER (PARTITION BY home_campus_id ORDER BY gpa DESC, student_id) AS rn FROM g) SELECT home_campus_id, student_id, round(gpa, 2) FROM r WHERE rn <= 3',
+      alt: 'WITH g AS (SELECT s.home_campus_id, s.student_id, avg(e.grade_points) AS gpa FROM students s JOIN enrollments e ON e.student_id = s.student_id GROUP BY s.student_id, s.home_campus_id HAVING count(e.grade_points) >= 8) SELECT a.home_campus_id, a.student_id, round(a.gpa, 2) FROM g a WHERE (SELECT count(*) FROM g b WHERE b.home_campus_id = a.home_campus_id AND (b.gpa > a.gpa OR (b.gpa = a.gpa AND b.student_id < a.student_id))) < 3',
+      wrong: 'WITH g AS (SELECT s.home_campus_id, s.student_id, avg(e.grade_points) AS gpa FROM students s JOIN enrollments e ON e.student_id = s.student_id WHERE e.grade_points IS NOT NULL GROUP BY s.student_id, s.home_campus_id HAVING count(*) >= 8) SELECT home_campus_id, student_id, round(gpa, 2) FROM g ORDER BY gpa DESC, student_id LIMIT 3',
+      hint: 'Number the rows inside each campus, then keep the numbers 1 to 3 in an outer query. A window function cannot be filtered in the same SELECT that creates it.',
+      concept: 'Top N per group is row_number in a CTE and a filter outside it.' },
+    { id: '9.4', unit: 9, title: 'Compare with the row before', ordered: true,
+      prompt: 'Show each term name, its number of enrollments, and the change from the term before it (empty for the first term), in term order.',
+      solution: 'WITH n AS (SELECT t.term_id, t.name, count(*) AS enrolled FROM terms t JOIN sections s ON s.term_id = t.term_id JOIN enrollments e ON e.section_id = s.section_id GROUP BY t.term_id, t.name) SELECT name, enrolled, enrolled - lag(enrolled) OVER (ORDER BY term_id) FROM n ORDER BY term_id',
+      alt: 'WITH n AS (SELECT t.term_id, t.name, count(*) AS enrolled FROM terms t JOIN sections s ON s.term_id = t.term_id JOIN enrollments e ON e.section_id = s.section_id GROUP BY t.term_id, t.name) SELECT a.name, a.enrolled, a.enrolled - b.enrolled FROM n a LEFT JOIN n b ON b.term_id = a.term_id - 1 ORDER BY a.term_id',
+      wrong: 'WITH n AS (SELECT t.term_id, t.name, count(*) AS enrolled FROM terms t JOIN sections s ON s.term_id = t.term_id JOIN enrollments e ON e.section_id = s.section_id GROUP BY t.term_id, t.name) SELECT name, enrolled, enrolled - lead(enrolled) OVER (ORDER BY term_id) FROM n ORDER BY term_id',
+      hint: 'LAG looks one row back in the window order.',
+      concept: 'LAG and LEAD read a neighboring row, which turns a list of totals into a list of changes.' },
+
+    { id: '10.1', unit: 10, title: 'Fill rate by campus', ordered: true,
+      prompt: 'For term 6 sections that meet in a room, show each campus name, its total seats (the sum of section capacity), its total enrolled (enrollments that are not Withdrawn), and enrolled as a percent of seats rounded to 1 place. Highest percent first.',
+      solution: "WITH per AS (SELECT s.section_id, s.room_id, s.capacity, (SELECT count(*) FROM enrollments e WHERE e.section_id = s.section_id AND e.status <> 'Withdrawn') AS n FROM sections s WHERE s.term_id = 6 AND s.room_id IS NOT NULL) SELECT c.name, sum(per.capacity), sum(per.n), round(100.0 * sum(per.n) / sum(per.capacity), 1) FROM per JOIN rooms r ON r.room_id = per.room_id JOIN campuses c ON c.campus_id = r.campus_id GROUP BY c.campus_id, c.name ORDER BY 4 DESC",
+      alt: "WITH filled AS (SELECT section_id, count(*) AS n FROM enrollments WHERE status <> 'Withdrawn' GROUP BY section_id) SELECT c.name, sum(s.capacity) AS seats, sum(coalesce(f.n, 0)) AS enrolled, round(sum(coalesce(f.n, 0)) * 100.0 / sum(s.capacity), 1) AS pct FROM sections s JOIN rooms r ON r.room_id = s.room_id JOIN campuses c ON c.campus_id = r.campus_id LEFT JOIN filled f ON f.section_id = s.section_id WHERE s.term_id = 6 GROUP BY c.campus_id, c.name ORDER BY pct DESC",
+      wrong: "SELECT c.name, sum(s.capacity), count(*), round(100.0 * count(*) / sum(s.capacity), 1) FROM sections s JOIN rooms r ON r.room_id = s.room_id JOIN campuses c ON c.campus_id = r.campus_id JOIN enrollments e ON e.section_id = s.section_id WHERE s.term_id = 6 AND e.status <> 'Withdrawn' GROUP BY c.campus_id, c.name ORDER BY 4 DESC",
+      hint: 'If you join sections straight to enrollments, each section capacity is repeated once per student and the seat total balloons. Count per section first, then add up.',
+      concept: 'Summing a value from the one side of a one to many join counts it many times. Aggregate to the right grain before joining.',
+      tsql: 'SQL Server does not allow ORDER BY 4 on an expression position in every context and prefers the alias. The 100.0 matters in both systems: it forces decimal division.' },
+    { id: '10.2', unit: 10, title: 'DFW rate by course', ordered: true,
+      prompt: 'Count the enrollments whose status is Completed or Withdrawn. A DFW is a grade of D or F, or a Withdrawn status. For courses with at least 100 such enrollments show the title, the total, the DFW count, and DFW as a percent of the total rounded to 1 place. Show the 10 highest rates, highest first, with ties in title order.',
+      solution: "SELECT c.title, count(*), sum(e.status = 'Withdrawn' OR e.grade IN ('D', 'F')), round(100.0 * sum(e.status = 'Withdrawn' OR e.grade IN ('D', 'F')) / count(*), 1) FROM enrollments e JOIN sections s ON s.section_id = e.section_id JOIN courses c ON c.course_id = s.course_id WHERE e.status IN ('Completed', 'Withdrawn') GROUP BY c.course_id, c.title HAVING count(*) >= 100 ORDER BY 4 DESC, c.title LIMIT 10",
+      alt: "WITH o AS (SELECT s.course_id, CASE WHEN e.status = 'Withdrawn' THEN 1 WHEN e.grade = 'D' OR e.grade = 'F' THEN 1 ELSE 0 END AS dfw FROM enrollments e JOIN sections s ON s.section_id = e.section_id WHERE e.status <> 'Enrolled'), a AS (SELECT course_id, count(*) AS total, sum(dfw) AS dfw FROM o GROUP BY course_id HAVING count(*) >= 100) SELECT c.title, a.total, a.dfw, round(a.dfw * 100.0 / a.total, 1) AS rate FROM a JOIN courses c ON c.course_id = a.course_id ORDER BY rate DESC, c.title LIMIT 10",
+      wrong: "SELECT c.title, count(*), sum(e.status = 'Withdrawn' OR e.grade IN ('D', 'F')), round(100 * sum(e.status = 'Withdrawn' OR e.grade IN ('D', 'F')) / count(*), 1) FROM enrollments e JOIN sections s ON s.section_id = e.section_id JOIN courses c ON c.course_id = s.course_id WHERE e.status IN ('Completed', 'Withdrawn') GROUP BY c.course_id, c.title HAVING count(*) >= 100 ORDER BY 4 DESC, c.title LIMIT 10",
+      hint: 'Dividing one whole number by another throws away the decimals. Multiply by 100.0, not 100.',
+      concept: 'Integer division truncates. A rate needs at least one decimal operand.',
+      tsql: "SQL Server needs SUM(CASE WHEN ... THEN 1 ELSE 0 END) for the DFW count and TOP 10 instead of LIMIT 10. Integer division truncates there too." }
+  ];
+
+  C.exercise = function (id) {
+    for (var i = 0; i < C.EXERCISES.length; i += 1) if (C.EXERCISES[i].id === id) return C.EXERCISES[i];
+    return null;
+  };
+
+  /**
+   * Grade one attempt. Runs both queries read only and records the attempt in _qd_clinic.
+   * Returns { ok, reason, result, expectedShape: { columns, rows } }.
+   * result is the learner's result set when the SQL ran, so the interface can show it either way.
+   */
+  C.check = function (project, exerciseId, sql) {
+    var ex = C.exercise(exerciseId);
+    if (!ex) throw new Error('Unknown exercise ' + exerciseId);
+    var want = project.query(ex.solution, { history: false, maxRows: 20000 });
+    var got = null, out;
+    try {
+      got = project.query(sql, { maxRows: 20000 });
+      var cmp = QD.compareResults(got, want, { ordered: ex.ordered });
+      out = { ok: cmp.match, reason: cmp.reason, result: got };
+    } catch (e) {
+      out = { ok: false, reason: e.message, result: null };
+    }
+    out.expectedShape = { columns: want.columns.length, rows: want.rows.length };
+    var prev = project.objects('SELECT * FROM _qd_clinic WHERE exercise_id = ?', [ex.id])[0];
+    var solved = (prev && prev.status === 'solved') || out.ok;
+    project.db.run('INSERT INTO _qd_clinic (exercise_id, status, attempts, last_sql, solved_at) VALUES (?,?,?,?,?) ' +
+      'ON CONFLICT(exercise_id) DO UPDATE SET status = excluded.status, attempts = _qd_clinic.attempts + 1, last_sql = excluded.last_sql, ' +
+      'solved_at = coalesce(_qd_clinic.solved_at, excluded.solved_at)',
+      [ex.id, solved ? 'solved' : 'tried', 1, String(sql), out.ok ? QD.now() : null]);
+    project._touch('clinic');
+    return out;
+  };
+
+  /** { byId: { '1.1': { status, attempts, lastSql, solvedAt } }, solved, total, units: [{ id, solved, total }] } */
+  C.progress = function (project) {
+    var byId = {};
+    project.objects('SELECT * FROM _qd_clinic').forEach(function (r) {
+      byId[r.exercise_id] = { status: r.status, attempts: r.attempts, lastSql: r.last_sql, solvedAt: r.solved_at };
+    });
+    var units = C.UNITS.map(function (u) {
+      var list = C.EXERCISES.filter(function (e) { return e.unit === u.id; });
+      return { id: u.id, total: list.length, solved: list.filter(function (e) { return byId[e.id] && byId[e.id].status === 'solved'; }).length };
+    });
+    return { byId: byId, total: C.EXERCISES.length, solved: units.reduce(function (s, u) { return s + u.solved; }, 0), units: units };
+  };
+
+  C.resetProgress = function (project) {
+    project.db.run('DELETE FROM _qd_clinic');
+    project._touch('clinic');
+  };
+
+  root.QDClinic = C;
+  if (typeof module !== 'undefined' && module.exports) module.exports = C;
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+/* QD:CLINIC END */
+
+/* Query Clinic, AppADay 199. The course and its grading live in QD:CLINIC; this is the interface only.
+ * QueryClinic.mount(root, { project }) builds everything inside root and looks up every element under root,
+ * so Day 200 can mount it in its Learn tab. With no project it opens or creates the stored project named Query Clinic. */
+(function () {
+  'use strict';
+  var APP = '199';
+  var ENGINE_DIR = '../appaday/vendor/sql.js-1.16.0/';
+  var LS_TSQL = 'queryclinic-tsql';
+  var DOT = ' \u00b7 ';
+  var SHOW_AFTER = 3;
+  /* sha256 of the ten practice tables, the same pin as test/clinic.fingerprint.json in the 194 workspace */
+  var PINNED = '2b9a53897d0aa60699fc961732d22b8f664e8543e6f6bd0c10c9bc3dab356814';
+  var PK = { campuses: 'campus_id', departments: 'dept_id', instructors: 'instructor_id', courses: 'course_id', terms: 'term_id',
+    rooms: 'room_id', sections: 'section_id', students: 'student_id', enrollments: 'enrollment_id', work_orders: 'work_order_id' };
+
+  function lsGet(k, d) { try { var v = localStorage.getItem(k); return v == null ? d : v; } catch (e) { return d; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* storage blocked */ } }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function plural(n, one, many) { return Number(n).toLocaleString() + ' ' + (n === 1 ? one : (many || one + 's')); }
+  function clear(el) { while (el.firstChild) el.removeChild(el.firstChild); }
+
+  var X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+  var GEAR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
+  var TROPHY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3"/><path d="M7 5H4v2a3 3 0 0 0 3 3"/></svg>';
+
+  var TEMPLATE =
+    '<div class="qc-top">' +
+      '<div class="qc-meter"><div class="row"><span data-qc="meterText">Starting</span><span data-qc="saveState" class="save-state" aria-live="polite"><span class="dot"></span><span class="txt">Starting</span></span></div>' +
+      '<div class="track" aria-hidden="true"><span data-qc="meterBar" style="width:0%"></span></div></div>' +
+      '<button data-qc="btnSchema" class="btn small" type="button">Tables</button>' +
+      '<button data-qc="btnGear" class="btn icon-btn" type="button" aria-label="Settings">' + GEAR + '</button>' +
+    '</div>' +
+    '<div data-qc="banner" class="banner hidden" role="alert"></div>' +
+    '<section data-qc="viewUnits" class="qc-view">' +
+      '<div class="ex-h"><h1>Learn SQL by answering real questions.</h1>' +
+      '<p class="lede">Forty exercises in ten units on Prairie Ridge College, a practice database built right here in your browser. Each answer is graded by the rows it returns, so any correct query passes.</p></div>' +
+      '<div data-qc="units" class="units"></div>' +
+      '<div class="list-foot"><button data-qc="btnNextUp" class="btn primary" type="button">Continue</button><button data-qc="btnTotals" class="btn" type="button">Totals</button></div>' +
+    '</section>' +
+    '<section data-qc="viewEx" class="qc-view hidden">' +
+      '<div class="crumbs"><button data-qc="btnBack" class="btn small" type="button">All units</button><span data-qc="where" class="where"></span></div>' +
+      '<div class="card">' +
+        '<div class="ex-h"><h2 data-qc="exTitle"></h2><div data-qc="exTags" class="ex-tags"></div></div>' +
+        '<p data-qc="exPrompt" class="prompt"></p>' +
+        '<div data-qc="tsqlNote" class="note hidden"></div>' +
+        '<div data-qc="hintNote" class="note hint hidden"></div>' +
+        '<label class="sr" data-qc="edLabel">Your SQL</label>' +
+        '<textarea data-qc="editor" class="editor" rows="6" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" placeholder="SELECT ..."></textarea>' +
+        '<div class="run-row">' +
+          '<button data-qc="btnRun" class="btn" type="button">Run</button>' +
+          '<button data-qc="btnCheck" class="btn primary" type="button">Check</button>' +
+          '<span class="grow"></span>' +
+          '<button data-qc="btnHint" class="btn small" type="button">Hint</button>' +
+          '<button data-qc="btnLast" class="btn small hidden" type="button">Last SQL</button>' +
+          '<button data-qc="btnAnswer" class="btn small" type="button" disabled>Show answer</button>' +
+        '</div>' +
+        '<p class="run-note" data-qc="runNote">Run shows the rows without grading. Check grades the answer. Ctrl or Cmd plus Enter checks.</p>' +
+        '<div data-qc="answerBox" class="verdict info hidden"></div>' +
+        '<div data-qc="verdict" class="verdict hidden" aria-live="polite"></div>' +
+      '</div>' +
+      '<div data-qc="result" class="result hidden"></div>' +
+      '<div class="ex-nav"><button data-qc="btnPrev" class="btn" type="button">Previous</button><button data-qc="btnNext" class="btn" type="button">Next</button></div>' +
+    '</section>' +
+    '<section data-qc="viewFinish" class="qc-view hidden"></section>' +
+    '<div data-qc="schemaScrim" class="scrim hidden" role="dialog" aria-modal="true">' +
+      '<div class="sheet"><div class="sheet-head"><h2>Practice tables</h2><button class="btn icon-btn ghost" type="button" data-qc-close="schemaScrim" aria-label="Close">' + X + '</button></div>' +
+      '<div class="sheet-body"><p class="muted">Ten tables of Prairie Ridge College. Tap a table for its columns and three sample rows. Key columns are outlined.</p><div data-qc="tables" class="tables"></div></div></div>' +
+    '</div>' +
+    '<div data-qc="setScrim" class="scrim hidden" role="dialog" aria-modal="true">' +
+      '<div class="sheet"><div class="sheet-head"><h2>Settings</h2><button class="btn icon-btn ghost" type="button" data-qc-close="setScrim" aria-label="Close">' + X + '</button></div>' +
+      '<div class="sheet-body">' +
+        '<div><h3>Dialect</h3><label class="switch"><input data-qc="setTsql" type="checkbox"> I am learning SQL Server</label>' +
+        '<p class="muted">Shows a note on the exercises where SQL Server (T-SQL) is written differently, such as TOP instead of LIMIT. The answers here still run in SQLite.</p></div>' +
+        '<div><h3>Your progress</h3><div class="sheet-row"><button data-qc="btnDownload" class="btn" type="button">Download progress</button><button data-qc="btnRestore" class="btn" type="button">Restore from a file</button></div>' +
+        '<p class="muted" style="margin-top:0.5rem">Progress is saved on this device as the project named Query Clinic. Download it to keep a copy or move it to another device, then restore it there.</p></div>' +
+        '<div><h3>Practice data</h3><div class="sheet-row"><button data-qc="btnVerify" class="btn" type="button">Check the practice data</button><button data-qc="btnRebuild" class="btn" type="button">Rebuild the practice data</button></div>' +
+        '<p data-qc="verifyText" class="muted" style="margin-top:0.5rem"></p></div>' +
+        '<div><h3>Start over</h3><div class="sheet-row"><button data-qc="btnReset" class="btn danger" type="button">Reset progress</button></div>' +
+        '<p class="muted" style="margin-top:0.5rem">Clears every attempt and solved mark. The practice data stays as it is.</p></div>' +
+      '</div></div>' +
+    '</div>' +
+    '<input data-qc="fileIn" class="sr" type="file" accept=".sqlite,.sqlite3,.db,application/x-sqlite3,application/vnd.sqlite3" tabindex="-1" aria-hidden="true">' +
+    '<div data-qc="toast" class="qc-toast hidden" role="status"></div>';
+
+  /* ======================================================== practice data check */
+
+  function fingerprintText(p) {
+    return QDClinic.TABLES.map(function (t) { return JSON.stringify(p.rows('SELECT * FROM ' + t + ' ORDER BY 1')); }).join('');
+  }
+  function hex(buf) {
+    var b = new Uint8Array(buf), s = '';
+    for (var i = 0; i < b.length; i += 1) s += (b[i] < 16 ? '0' : '') + b[i].toString(16);
+    return s;
+  }
+  var referenceText = null;
+  /** Resolves { ok, problems: [sentences], method }. Never throws. */
+  function verifyData(p) {
+    var problems = [];
+    QDClinic.TABLES.forEach(function (t) { if (!p.hasTable(t)) problems.push('The table ' + t + ' is missing.'); });
+    if (problems.length) return Promise.resolve({ ok: false, problems: problems, method: 'tables' });
+    var text;
+    try { text = fingerprintText(p); } catch (e) { return Promise.resolve({ ok: false, problems: ['The practice tables could not be read. ' + e.message], method: 'read' }); }
+    var subtle = window.crypto && window.crypto.subtle && typeof TextEncoder !== 'undefined' ? window.crypto.subtle : null;
+    var compare = subtle ? subtle.digest('SHA-256', new TextEncoder().encode(text)).then(function (d) { return { same: hex(d) === PINNED, method: 'sha256' }; })
+      : Promise.reject(new Error('no subtle'));
+    return compare.catch(function () {
+      if (referenceText === null) { var ref = QDClinic.createProject(); referenceText = fingerprintText(ref); ref.close(); }
+      return { same: text === referenceText, method: 'reference' };
+    }).then(function (r) {
+      if (!r.same) {
+        var ref = QDClinic.createProject();
+        QDClinic.TABLES.forEach(function (t) {
+          var a = p.scalar('SELECT count(*) FROM ' + t), b = ref.scalar('SELECT count(*) FROM ' + t);
+          if (a !== b) problems.push(t + ' has ' + plural(a, 'row') + ' where it should have ' + Number(b).toLocaleString() + '.');
+          else if (JSON.stringify(p.rows('SELECT * FROM ' + t + ' ORDER BY 1')) !== JSON.stringify(ref.rows('SELECT * FROM ' + t + ' ORDER BY 1'))) problems.push('Some values in ' + t + ' have been changed.');
+        });
+        ref.close();
+        if (!problems.length) problems.push('The practice data does not match the original.');
+      }
+      return { ok: r.same, problems: problems, method: r.method };
+    });
+  }
+
+  /** A fresh Query Clinic project that carries over every attempt and solved mark from old. */
+  function rebuildFrom(old) {
+    var keep = [];
+    try { keep = old.objects('SELECT exercise_id, status, attempts, last_sql, solved_at FROM _qd_clinic'); } catch (e) { keep = []; }
+    var np = QDClinic.createProject();
+    keep.forEach(function (r) {
+      if (!QDClinic.exercise(r.exercise_id)) return;
+      np.db.run('INSERT OR REPLACE INTO _qd_clinic (exercise_id, status, attempts, last_sql, solved_at) VALUES (?,?,?,?,?)',
+        [r.exercise_id, r.status, r.attempts, r.last_sql, r.solved_at]);
+    });
+    np._touch('clinic');
+    return { project: np, kept: keep.length };
+  }
+
+  /* ================================================================ mount */
+
+  function mount(root, opts) {
+    opts = opts || {};
+    if (!root) throw new Error('QueryClinic.mount needs a root element.');
+    if (typeof QD === 'undefined' || typeof QDClinic === 'undefined') throw new Error('QD:CORE and QD:CLINIC must load before Query Clinic.');
+    clear(root);
+    root.classList.add('qc');
+    root.innerHTML = TEMPLATE;
+    var R = {};
+    Array.prototype.forEach.call(root.querySelectorAll('[data-qc]'), function (el) { R[el.getAttribute('data-qc')] = el; });
+    var edId = 'qc-ed-' + Math.random().toString(36).slice(2, 8);
+    R.editor.id = edId; R.edLabel.setAttribute('for', edId);
+
+    var S = {
+      p: null, auto: null, view: 'units', exId: null, openUnit: null, drafts: {}, hints: {}, answers: {},
+      verdict: null, integrity: null, tsql: lsGet(LS_TSQL, '0') === '1', unsub: null, autosave: opts.autosave !== false,
+      stored: !opts.project, destroyed: false, listeners: []
+    };
+
+    function on(el, ev, fn) { el.addEventListener(ev, fn); S.listeners.push([el, ev, fn]); }
+    function show(el, yes) { el.classList[yes ? 'remove' : 'add']('hidden'); }
+    var toastTimer = null;
+    function toast(msg) {
+      R.toast.textContent = msg; show(R.toast, true);
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { show(R.toast, false); }, 3200);
+    }
+    function setSaveState(kind, text) { R.saveState.className = 'save-state ' + kind; R.saveState.querySelector('.txt').textContent = text; }
+
+    /* ---------------------------------------------------------- project */
+
+    function startAutosave() {
+      if (S.auto) { S.auto.stop(); S.auto = null; }
+      if (!S.autosave || !S.p) { setSaveState('', 'Saved by the host'); return; }
+      var p = S.p;
+      S.auto = QD.autosave(p, {
+        app: APP,
+        onSave: function (ok, size) { if (ok) setSaveState('saved', 'Saved ' + QD.formatBytes(size)); else setSaveState('off', 'Not saved on this device'); }
+      });
+    }
+    function saveNow() {
+      if (!S.autosave || !S.p) return Promise.resolve(false);
+      return S.auto ? S.auto.flush() : QD.store.save(S.p.name, S.p.export(APP), APP);
+    }
+    function use(p, why) {
+      if (S.unsub) { S.unsub(); S.unsub = null; }
+      if (S.auto) { S.auto.stop(); S.auto = null; }
+      S.p = p;
+      S.unsub = p.onChange(function (kind) {
+        if (kind === 'clinic') { renderMeter(); if (S.auto) setSaveState('dirty', 'Saving'); }
+      });
+      startAutosave();
+      if (opts.onProject) { try { opts.onProject(p, why || 'open'); } catch (e) { /* host problem */ } }
+      renderMeter();
+      S.verifying = verify();
+    }
+    function replaceProject(np, why) {
+      var old = S.p;
+      use(np, why);
+      if (old && old !== np && S.stored) old.close();
+      return saveNow();
+    }
+
+    function verify() {
+      var p = S.p;
+      return verifyData(p).then(function (r) {
+        if (p !== S.p) return r;
+        S.integrity = r;
+        renderBanner();
+        R.verifyText.textContent = r.ok ? 'The practice data matches the original exactly (' + (r.method === 'sha256' ? 'SHA-256 fingerprint' : 'compared with a fresh copy') + ').'
+          : r.problems.join(' ');
+        return r;
+      });
+    }
+    function rebuild() {
+      var out = rebuildFrom(S.p);
+      return replaceProject(out.project, 'rebuild').then(function () {
+        toast('Practice data rebuilt. ' + plural(out.kept, 'exercise record') + ' kept.');
+        render();
+        return out;
+      });
+    }
+
+    /* ---------------------------------------------------------- views */
+
+    function progress() { return QDClinic.progress(S.p); }
+    function exList() { return QDClinic.EXERCISES; }
+    function idx(id) { for (var i = 0; i < exList().length; i += 1) if (exList()[i].id === id) return i; return -1; }
+    function unitOf(id) { var ex = QDClinic.exercise(id); return ex ? QDClinic.UNITS[ex.unit - 1] : null; }
+    function firstOpen(pr) {
+      for (var i = 0; i < exList().length; i += 1) { var r = pr.byId[exList()[i].id]; if (!r || r.status !== 'solved') return exList()[i].id; }
+      return null;
+    }
+
+    function renderMeter() {
+      if (!S.p) return;
+      var pr = progress();
+      R.meterText.innerHTML = '<b>' + pr.solved + '</b> of ' + pr.total + ' solved';
+      R.meterBar.style.width = Math.round(100 * pr.solved / pr.total) + '%';
+    }
+
+    function renderBanner() {
+      var r = S.integrity;
+      if (!r || r.ok) { show(R.banner, false); clear(R.banner); return; }
+      R.banner.innerHTML = '<div><strong>The practice data has been changed</strong><p>' + esc(r.problems.slice(0, 4).join(' ')) +
+        ' Answers are graded against this copy, so results may not match the exercises. Rebuilding restores the original data and keeps your progress.</p></div>' +
+        '<div><button class="btn primary" type="button" data-qc-act="rebuild">Rebuild and keep progress</button></div>';
+      show(R.banner, true);
+    }
+
+    function setView(v) {
+      S.view = v;
+      show(R.viewUnits, v === 'units'); show(R.viewEx, v === 'ex'); show(R.viewFinish, v === 'finish');
+      if (opts.onView) { try { opts.onView(v, S.exId); } catch (e) { /* host problem */ } }
+    }
+
+    function statusTag(rec) {
+      if (rec && rec.status === 'solved') return '<span class="st solved">Solved</span>';
+      if (rec && rec.attempts) return '<span class="st tried">' + plural(rec.attempts, 'try', 'tries') + '</span>';
+      return '<span class="st">New</span>';
+    }
+
+    function renderUnits() {
+      var pr = progress(), h = '';
+      QDClinic.UNITS.forEach(function (u, k) {
+        var up = pr.units[k], open = S.openUnit === u.id, done = up.solved === up.total;
+        h += '<div class="unit' + (open ? ' open' : '') + (done ? ' done' : '') + '" data-unit="' + u.id + '">' +
+          '<button class="unit-h" type="button" data-qc-unit="' + u.id + '" aria-expanded="' + open + '">' +
+          '<span class="unit-n">' + u.id + '</span>' +
+          '<span class="unit-t"><b>' + esc(u.title) + '</b><span>' + esc(u.blurb) + '</span>' +
+          '<span class="track"><span style="width:' + Math.round(100 * up.solved / up.total) + '%"></span></span></span>' +
+          '<span class="unit-c"><b>' + up.solved + '</b> / ' + up.total + '</span></button>';
+        if (open) {
+          h += '<div class="exlist">';
+          exList().filter(function (e) { return e.unit === u.id; }).forEach(function (e) {
+            h += '<button class="exitem" type="button" data-qc-ex="' + e.id + '"><span class="id">' + e.id + '</span><span class="t">' + esc(e.title) + '</span>' + statusTag(pr.byId[e.id]) + '</button>';
+          });
+          h += '</div>';
+        }
+        h += '</div>';
+      });
+      R.units.innerHTML = h;
+      var next = firstOpen(pr);
+      R.btnNextUp.textContent = next ? (pr.solved || Object.keys(pr.byId).length ? 'Continue with ' + next : 'Start with 1.1') : 'See your totals';
+      R.btnNextUp.setAttribute('data-target', next || '');
+    }
+
+    function renderTags(ex, rec) {
+      var u = QDClinic.UNITS[ex.unit - 1];
+      var t = '<span class="tag">Unit ' + u.id + DOT + esc(u.title) + '</span>';
+      if (ex.ordered) t += '<span class="tag">Row order is graded</span>';
+      t += statusTag(rec);
+      R.exTags.innerHTML = t;
+    }
+
+    function answerUnlocked(rec) { return !!rec && (rec.status === 'solved' || rec.attempts >= SHOW_AFTER); }
+
+    function renderExercise() {
+      var ex = QDClinic.exercise(S.exId);
+      if (!ex) { setView('units'); return; }
+      var rec = progress().byId[ex.id], i = idx(ex.id), u = unitOf(ex.id);
+      R.where.textContent = 'Exercise ' + ex.id + ' of ' + exList().length + DOT + u.title;
+      R.exTitle.textContent = ex.id + '  ' + ex.title;
+      renderTags(ex, rec);
+      R.exPrompt.textContent = ex.prompt;
+      if (S.tsql && ex.tsql) { R.tsqlNote.innerHTML = '<b>SQL Server</b>' + esc(ex.tsql); show(R.tsqlNote, true); }
+      else show(R.tsqlNote, false);
+      if (S.hints[ex.id]) { R.hintNote.innerHTML = '<b>Hint</b>' + esc(ex.hint); show(R.hintNote, true); }
+      else show(R.hintNote, false);
+      R.btnHint.disabled = !!S.hints[ex.id];
+      var unlocked = answerUnlocked(rec);
+      R.btnAnswer.disabled = !unlocked;
+      R.btnAnswer.title = unlocked ? 'Show the reference answer' : 'Unlocks after ' + SHOW_AFTER + ' tries';
+      R.btnAnswer.textContent = unlocked ? 'Show answer' : 'Show answer (' + Math.max(0, SHOW_AFTER - ((rec && rec.attempts) || 0)) + ' more)';
+      var last = rec && rec.lastSql;
+      show(R.btnLast, !!last && R.editor.value.trim() !== String(last).trim());
+      if (S.answers[ex.id] && unlocked) {
+        R.answerBox.innerHTML = '<strong>One correct answer</strong><pre class="answer">' + esc(ex.solution) + '</pre>' +
+          '<p class="muted">Other queries that return the same rows pass too.</p><div class="acts"><button class="btn small" type="button" data-qc-act="useAnswer">Put it in the editor</button></div>';
+        show(R.answerBox, true);
+      } else show(R.answerBox, false);
+      R.btnPrev.disabled = i <= 0;
+      R.btnNext.textContent = i >= exList().length - 1 ? 'Totals' : 'Next';
+      renderVerdict();
+    }
+
+    function gridHtml(res) {
+      var n = Math.min(res.rows.length, 200);
+      var h = '<div class="result-scroll"><table class="grid"><thead><tr><th class="rn">#</th>';
+      res.columns.forEach(function (c) { h += '<th>' + esc(c) + '</th>'; });
+      h += '</tr></thead><tbody>';
+      for (var r = 0; r < n; r += 1) {
+        var row = res.rows[r];
+        h += '<tr><td class="rn">' + (r + 1) + '</td>';
+        for (var c = 0; c < row.length; c += 1) {
+          var v = row[c];
+          if (v === null || v === undefined) h += '<td class="null">NULL</td>';
+          else if (v instanceof Uint8Array) h += '<td class="null">blob ' + v.length + ' bytes</td>';
+          else if (typeof v === 'number') h += '<td class="num">' + esc(v) + '</td>';
+          else h += '<td title="' + esc(String(v).slice(0, 300)) + '">' + esc(v) + '</td>';
+        }
+        h += '</tr>';
+      }
+      return h + '</tbody></table></div>';
+    }
+
+    function renderResult(res, label) {
+      if (!res) { show(R.result, false); clear(R.result); return; }
+      var shown = Math.min(res.rows.length, 200);
+      R.result.innerHTML = '<div class="result-head">' + esc(label) + DOT + '<b>' + plural(res.rows.length, 'row') + '</b>, ' + plural(res.columns.length, 'column') +
+        (shown < res.rows.length ? DOT + 'showing the first ' + shown : '') + (res.truncated ? DOT + 'cut at the row limit' : '') + '</div>' +
+        (res.columns.length ? gridHtml(res) : '<div class="muted" style="padding:0.9rem">No columns came back.</div>');
+      show(R.result, true);
+    }
+
+    function renderVerdict() {
+      var v = S.verdict;
+      if (!v || v.exId !== S.exId) { show(R.verdict, false); clear(R.verdict); return; }
+      var ex = QDClinic.exercise(v.exId), h = '';
+      R.verdict.className = 'verdict ' + v.kind;
+      if (v.kind === 'pass') {
+        var i = idx(ex.id), last = i >= exList().length - 1;
+        h = '<div><strong>Correct</strong><p>' + esc(ex.concept) + '</p></div>' +
+          '<div class="acts"><button class="btn primary" type="button" data-qc-act="next">' + (last || progress().solved === exList().length ? 'See your totals' : 'Next exercise') + '</button></div>';
+      } else if (v.kind === 'fail') {
+        h = '<div><strong>Not yet</strong><p>' + esc(v.reason) + '</p></div>' +
+          '<p class="muted">The expected answer has ' + plural(v.shape.columns, 'column') + ' and ' + plural(v.shape.rows, 'row') + '.' +
+          (v.mine ? ' Yours has ' + plural(v.mine.columns, 'column') + ' and ' + plural(v.mine.rows, 'row') + '.' : '') + '</p>';
+      } else if (v.kind === 'guard') {
+        h = '<div><strong>Only reading is allowed here</strong><p>' + esc(v.reason) + '</p></div><p class="muted">The practice data cannot be changed from Query Clinic, so every exercise keeps working.</p>';
+      } else {
+        h = '<div><strong>' + esc(v.title) + '</strong><p>' + esc(v.reason) + '</p></div>';
+      }
+      R.verdict.innerHTML = h;
+      show(R.verdict, true);
+    }
+
+    function renderFinish() {
+      var pr = progress(), attempts = 0, first = 0;
+      exList().forEach(function (e) { var r = pr.byId[e.id]; if (r) { attempts += r.attempts || 0; if (r.status === 'solved' && r.attempts === 1) first += 1; } });
+      var all = pr.solved === pr.total;
+      var h = '<div class="card"><div class="finish">' +
+        (all ? '<div class="finish-art" aria-hidden="true">' + TROPHY + '</div><h1>Course complete.</h1><p class="lede">All forty exercises solved, from SELECT to window functions.</p>'
+          : '<h1>Your totals so far.</h1><p class="lede">' + plural(pr.total - pr.solved, 'exercise') + ' still to solve.</p>') +
+        '<div class="stats">' +
+          '<div class="stat"><div class="v">' + pr.solved + '</div><div class="l">of ' + pr.total + ' solved</div></div>' +
+          '<div class="stat"><div class="v">' + attempts + '</div><div class="l">checks made</div></div>' +
+          '<div class="stat"><div class="v">' + first + '</div><div class="l">solved on the first try</div></div>' +
+          '<div class="stat"><div class="v">' + pr.units.filter(function (u) { return u.solved === u.total; }).length + '</div><div class="l">of 10 units complete</div></div>' +
+        '</div></div>' +
+        '<table class="totals"><thead><tr><th>Unit</th><th class="n">Solved</th></tr></thead><tbody>' +
+        QDClinic.UNITS.map(function (u, k) { return '<tr><td>' + u.id + DOT + esc(u.title) + '</td><td class="n">' + pr.units[k].solved + ' / ' + pr.units[k].total + '</td></tr>'; }).join('') +
+        '</tbody></table>' +
+        '<div class="list-foot"><button class="btn primary" type="button" data-qc-act="units">Back to the units</button>' +
+        (all ? '' : '<button class="btn" type="button" data-qc-act="continue">Keep going</button>') + '</div></div>';
+      R.viewFinish.innerHTML = h;
+    }
+
+    function renderTables() {
+      var p = S.p, h = '';
+      QDClinic.TABLES.forEach(function (t) {
+        if (!p.hasTable(t)) { h += '<div class="muted">' + esc(t) + ' is missing. Rebuild the practice data in Settings.</div>'; return; }
+        var cols = p.rows('PRAGMA table_info(' + t + ')'), n = p.scalar('SELECT count(*) FROM ' + t);
+        var sample = p.query('SELECT * FROM ' + t + ' LIMIT 3', { history: false });
+        h += '<details class="tbl" data-table="' + t + '"><summary>' + esc(t) + '<span>' + plural(n, 'row') + '</span></summary><div class="cols">' +
+          cols.map(function (c) { return '<span class="col' + (c[1] === PK[t] || /_id$/.test(c[1]) ? ' key' : '') + '">' + esc(c[1]) + '<i>' + esc(String(c[2] || '').toLowerCase()) + '</i></span>'; }).join('') +
+          '</div>' + gridHtml(sample) + '</details>';
+      });
+      R.tables.innerHTML = h;
+    }
+
+    function render() {
+      if (!S.p) return;
+      renderMeter();
+      if (S.view === 'units') renderUnits();
+      else if (S.view === 'ex') renderExercise();
+      else renderFinish();
+    }
+
+    /* ---------------------------------------------------------- actions */
+
+    function openExercise(id) {
+      var ex = QDClinic.exercise(id);
+      if (!ex) return;
+      if (S.exId && S.view === 'ex') S.drafts[S.exId] = R.editor.value;
+      S.exId = ex.id; S.openUnit = ex.unit;
+      var rec = progress().byId[ex.id];
+      R.editor.value = S.drafts[ex.id] != null ? S.drafts[ex.id] : (rec && rec.status === 'solved' && rec.lastSql ? rec.lastSql : '');
+      S.verdict = null;
+      renderResult(null);
+      setView('ex');
+      renderExercise();
+      try { root.scrollIntoView({ block: 'start' }); } catch (e) { /* old browser */ }
+    }
+    function goUnits() { if (S.view === 'ex' && S.exId) S.drafts[S.exId] = R.editor.value; setView('units'); renderUnits(); }
+    function goFinish() { if (S.view === 'ex' && S.exId) S.drafts[S.exId] = R.editor.value; renderFinish(); setView('finish'); }
+    function step(d) {
+      var i = idx(S.exId) + d;
+      if (i < 0) return;
+      if (i >= exList().length) { goFinish(); return; }
+      openExercise(exList()[i].id);
+    }
+    function afterPass() {
+      var pr = progress();
+      if (pr.solved === pr.total) { goFinish(); return; }
+      step(1);
+    }
+
+    function sqlText() { return R.editor.value.trim(); }
+
+    function run() {
+      var sql = sqlText();
+      if (!sql) { S.verdict = { exId: S.exId, kind: 'info', title: 'Nothing to run', reason: 'Write a query in the box first.' }; renderVerdict(); return; }
+      try {
+        var res = S.p.query(sql, { maxRows: 20000 });
+        S.verdict = { exId: S.exId, kind: 'info', title: 'Ran without grading', reason: 'Tap Check when you think the rows answer the question.' };
+        renderResult(res, 'Run');
+      } catch (e) {
+        S.verdict = { exId: S.exId, kind: e.kind === 'guard' ? 'guard' : 'info', title: 'The query did not run', reason: e.message };
+        renderResult(null);
+      }
+      renderVerdict();
+    }
+
+    function check() {
+      var sql = sqlText(), ex = QDClinic.exercise(S.exId);
+      if (!sql) { S.verdict = { exId: S.exId, kind: 'info', title: 'Nothing to check', reason: 'Write a query in the box first.' }; renderVerdict(); return; }
+      var guard = QD.checkReadOnly(sql), out;
+      try { out = QDClinic.check(S.p, ex.id, sql); }
+      catch (e) { S.verdict = { exId: ex.id, kind: 'info', title: 'This exercise cannot be graded', reason: e.message + ' Rebuild the practice data in Settings.' }; renderVerdict(); return; }
+      S.drafts[ex.id] = R.editor.value;
+      if (out.ok) S.verdict = { exId: ex.id, kind: 'pass' };
+      else if (!guard.ok) S.verdict = { exId: ex.id, kind: 'guard', reason: out.reason };
+      else S.verdict = { exId: ex.id, kind: 'fail', reason: out.reason, shape: out.expectedShape, mine: out.result ? { columns: out.result.columns.length, rows: out.result.rows.length } : null };
+      renderResult(out.result, out.ok ? 'Your answer' : 'Your rows');
+      renderExercise();
+    }
+
+    function resetProgress() {
+      QDClinic.resetProgress(S.p);
+      S.drafts = {}; S.hints = {}; S.answers = {}; S.verdict = null;
+      renderResult(null);
+      saveNow();
+      setView('units'); S.openUnit = null; render();
+      toast('Progress cleared');
+    }
+
+    function restoreFile(file) {
+      return QD.readFile(file, false).then(function (bytes) {
+        var np;
+        try { np = QD.open(bytes, QDClinic.PROJECT_NAME); } catch (e) { throw new Error(e.message); }
+        var isClinic = np.getMeta('clinic_seed') || QDClinic.TABLES.every(function (t) { return np.hasTable(t); });
+        if (!isClinic) { np.close(); throw new Error('That file is not a Query Clinic progress file.'); }
+        var n = np.scalar('SELECT count(*) FROM _qd_clinic');
+        return verifyData(np).then(function (r) {
+          if (!r.ok) { var rb = rebuildFrom(np); np.close(); np = rb.project; }
+          return replaceProject(np, 'restore').then(function () {
+            S.drafts = {}; S.hints = {}; S.answers = {}; S.verdict = null;
+            setView('units'); render();
+            toast('Restored ' + plural(n, 'exercise record') + (r.ok ? '' : ', with the practice data rebuilt'));
+          });
+        });
+      }).catch(function (e) { toast('Could not restore ' + file.name + '. ' + e.message); });
+    }
+
+    function download() {
+      var bytes = S.p.export(APP);
+      QD.download(bytes, 'query-clinic-progress.sqlite', 'application/vnd.sqlite3');
+      if (S.auto) S.auto.flush();
+      toast('Downloaded query-clinic-progress.sqlite (' + QD.formatBytes(bytes.length) + ')');
+    }
+
+    function openSheet(name) {
+      if (name === 'schemaScrim') renderTables();
+      if (name === 'setScrim') { R.setTsql.checked = S.tsql; R.btnReset.textContent = 'Reset progress'; R.btnReset.removeAttribute('data-armed'); }
+      show(R[name], true);
+    }
+    function closeSheet(name) { show(R[name], false); }
+
+    /* ---------------------------------------------------------- wiring */
+
+    on(root, 'click', function (e) {
+      var b = e.target.closest ? e.target.closest('button') : null;
+      if (!b || !root.contains(b)) { if (e.target.classList && e.target.classList.contains('scrim')) show(e.target, false); return; }
+      var a;
+      if ((a = b.getAttribute('data-qc-close'))) closeSheet(a);
+      else if ((a = b.getAttribute('data-qc-unit'))) { var u = parseInt(a, 10); S.openUnit = S.openUnit === u ? null : u; renderUnits(); }
+      else if ((a = b.getAttribute('data-qc-ex'))) openExercise(a);
+      else if ((a = b.getAttribute('data-qc-act'))) {
+        if (a === 'rebuild') rebuild();
+        else if (a === 'next') afterPass();
+        else if (a === 'units') goUnits();
+        else if (a === 'continue') { var nx = firstOpen(progress()); if (nx) openExercise(nx); }
+        else if (a === 'useAnswer') { R.editor.value = QDClinic.exercise(S.exId).solution; renderExercise(); R.editor.focus(); }
+      }
+    });
+    on(R.btnBack, 'click', goUnits);
+    on(R.btnPrev, 'click', function () { step(-1); });
+    on(R.btnNext, 'click', function () { step(1); });
+    on(R.btnRun, 'click', run);
+    on(R.btnCheck, 'click', check);
+    on(R.btnHint, 'click', function () { S.hints[S.exId] = true; renderExercise(); });
+    on(R.btnAnswer, 'click', function () { S.answers[S.exId] = true; renderExercise(); });
+    on(R.btnLast, 'click', function () { var rec = progress().byId[S.exId]; if (rec && rec.lastSql) { R.editor.value = rec.lastSql; S.drafts[S.exId] = rec.lastSql; } renderExercise(); R.editor.focus(); });
+    on(R.editor, 'input', function () { if (S.exId) S.drafts[S.exId] = R.editor.value; var rec = progress().byId[S.exId]; show(R.btnLast, !!(rec && rec.lastSql) && R.editor.value.trim() !== String(rec.lastSql).trim()); });
+    on(R.editor, 'keydown', function (e) {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); check(); }
+      else if (e.key === 'Tab' && !e.shiftKey && !e.altKey) {
+        e.preventDefault();
+        var el = R.editor, s = el.selectionStart, en = el.selectionEnd;
+        el.value = el.value.slice(0, s) + '  ' + el.value.slice(en); el.selectionStart = el.selectionEnd = s + 2;
+      }
+    });
+    on(R.btnNextUp, 'click', function () { var t = R.btnNextUp.getAttribute('data-target'); if (t) openExercise(t); else goFinish(); });
+    on(R.btnTotals, 'click', goFinish);
+    on(R.btnSchema, 'click', function () { openSheet('schemaScrim'); });
+    on(R.btnGear, 'click', function () { openSheet('setScrim'); });
+    on(R.setTsql, 'change', function () { S.tsql = R.setTsql.checked; lsSet(LS_TSQL, S.tsql ? '1' : '0'); if (S.view === 'ex') renderExercise(); });
+    on(R.btnDownload, 'click', download);
+    on(R.btnRestore, 'click', function () { R.fileIn.click(); });
+    on(R.fileIn, 'change', function () { var f = R.fileIn.files[0]; R.fileIn.value = ''; if (f) { closeSheet('setScrim'); restoreFile(f); } });
+    on(R.btnVerify, 'click', function () { R.verifyText.textContent = 'Checking'; verify().then(function (r) { toast(r.ok ? 'The practice data is intact' : 'The practice data has been changed'); }); });
+    on(R.btnRebuild, 'click', function () { closeSheet('setScrim'); rebuild(); });
+    on(R.btnReset, 'click', function () {
+      if (R.btnReset.getAttribute('data-armed') !== '1') { R.btnReset.setAttribute('data-armed', '1'); R.btnReset.textContent = 'Tap again to clear all progress'; return; }
+      closeSheet('setScrim'); resetProgress();
+    });
+    on(document, 'keydown', function (e) { if (e.key === 'Escape') { closeSheet('schemaScrim'); closeSheet('setScrim'); } });
+    on(window, 'pagehide', function () { if (S.auto && S.p && S.p.isDirty()) S.auto.flush(); });
+
+    /* ---------------------------------------------------------- start */
+
+    var ready;
+    if (opts.project) {
+      use(opts.project, 'host');
+      ready = Promise.resolve();
+    } else {
+      setSaveState('', 'Opening');
+      ready = QD.store.load(QDClinic.PROJECT_NAME).then(function (rec) {
+        var p = null;
+        if (rec) { try { p = QD.open(rec.bytes, QDClinic.PROJECT_NAME); } catch (e) { p = null; } }
+        var fresh = !p;
+        if (fresh) p = QDClinic.createProject();
+        use(p, fresh ? 'new' : 'open');
+        if (fresh) saveNow(); else setSaveState('saved', 'Saved');
+      });
+    }
+    ready = ready.then(function () { setView('units'); render(); return S.verifying; }).then(function () { return api; });
+
+    var api = {
+      root: root, ready: ready, state: S,
+      project: function () { return S.p; },
+      open: openExercise, units: goUnits, finish: goFinish,
+      verify: verify, rebuild: rebuild, refresh: render,
+      unmount: function () {
+        if (S.destroyed) return;
+        S.destroyed = true;
+        S.listeners.forEach(function (l) { l[0].removeEventListener(l[1], l[2]); });
+        if (S.unsub) S.unsub();
+        var done = S.auto && S.p && S.p.isDirty() ? S.auto.flush() : Promise.resolve();
+        var a = S.auto; S.auto = null;
+        return done.then(function () { if (a) a.stop(); if (S.stored && S.p) S.p.close(); clear(root); root.classList.remove('qc'); });
+      }
+    };
+    return api;
+  }
+
+  window.QueryClinic = { mount: mount, verifyData: verifyData, rebuildFrom: rebuildFrom, PINNED: PINNED, VERSION: '1.0.0' };
+
+  /* ==================================================================== page boot */
+
+  function fatal(title, text) {
+    var f = document.getElementById('fatal');
+    f.innerHTML = '<h1>' + esc(title) + '</h1><p>' + esc(text) + '</p>';
+    f.classList.remove('hidden');
+  }
+  function boot() {
+    var root = document.getElementById('clinic');
+    if (!root) return;
+    if (typeof QD === 'undefined' || typeof QDClinic === 'undefined') { fatal('Something is missing', 'The shared Query Desk code did not load. Reload the page.'); return; }
+    if (typeof window.initSqlJs !== 'function') { fatal('The database engine did not load', 'Check the connection and reload. The engine is a one time download of about 700 KB.'); return; }
+    QD.boot(null, { locateFile: function (f) { return ENGINE_DIR + f; } }).then(function () {
+      window.QueryClinic.app = mount(root, {});
+      return window.QueryClinic.app.ready;
+    }).catch(function (e) { fatal('Query Clinic did not start', (e && e.message) || 'Reload the page to try again.'); });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+</script>
+</body>
+</html>
